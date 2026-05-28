@@ -1,0 +1,9 @@
+{{ school_name }} — Teacher Account Registration Update
+
+Hi {{ user.get_full_name|default:user.username }},
+
+Your teacher account registration on {{ school_name }} was not approved.
+
+Please contact the school administrator for more information.
+
+This is an automated message from {{ school_name }}.

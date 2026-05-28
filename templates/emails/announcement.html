@@ -1,0 +1,21 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#128227; {{ announcement.title }}</h2>
+<p>Hello,</p>
+<p>There is a new announcement from <strong>{{ school_name }}</strong>:</p>
+<hr class="divider">
+<div style="font-size:14px;color:#333;line-height:1.8;">{{ announcement.content|linebreaks }}</div>
+<hr class="divider">
+<p style="font-size:12px;color:#999;">
+  Type: <strong>{{ announcement.ann_type|upper }}</strong> &bull;
+  Audience: {{ announcement.audience }} &bull;
+  Posted by: {{ announcement.author.get_full_name|default:announcement.author.username }} &bull;
+  {{ announcement.created_at|date:"F d, Y" }}
+</p>
+{% if announcement.attachment %}
+<a href="{{ announcement.attachment.url }}" class="btn">&#128462; Download Attachment</a>
+{% endif %}
+{% if announcement.link %}
+<a href="{{ announcement.link }}" class="btn" style="margin-left:8px;">&#128279; Open Link</a>
+{% endif %}
+{% endblock %}

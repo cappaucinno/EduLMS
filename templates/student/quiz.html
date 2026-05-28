@@ -1,0 +1,52 @@
+{% extends 'base.html' %}
+{% block title %}{{ quiz.title }}{% endblock %}
+{% block page_title %}Quiz — {{ quiz.title }}{% endblock %}
+{% block content %}
+
+<div class="mb-3" data-quiz-id="{{ quiz.pk }}">
+  <span class="grade-badge me-2">Grade {{ quiz.room.grade_level }}</span>
+  <span class="subject-tag">{{ quiz.room.subject }}</span>
+  <span class="text-muted small ms-2">{{ questions.count }} question{{ questions.count|pluralize }}</span>
+</div>
+
+<div class="alert alert-warning small rounded-3">
+  <i class="bi bi-exclamation-triangle me-1"></i>
+  You can only submit this quiz <strong>once</strong>. Answer all questions carefully before submitting.
+</div>
+
+<form method="post" action="/student/quiz/{{ quiz.pk }}/take/" data-quiz-id="{{ quiz.pk }}" id="quizForm">
+  {% csrf_token %}
+  {% for q in questions %}
+  <div class="card p-4 mb-3">
+    <p class="fw-bold mb-3">{{ forloop.counter }}. {{ q.text }}</p>
+    <div class="d-flex flex-column gap-2">
+      <label class="border rounded p-2 d-flex align-items-center gap-2" style="cursor:pointer">
+        <input type="radio" name="q_{{ q.pk }}" value="A" required>
+        <strong>A.</strong> {{ q.option_a }}
+      </label>
+      <label class="border rounded p-2 d-flex align-items-center gap-2" style="cursor:pointer">
+        <input type="radio" name="q_{{ q.pk }}" value="B">
+        <strong>B.</strong> {{ q.option_b }}
+      </label>
+      <label class="border rounded p-2 d-flex align-items-center gap-2" style="cursor:pointer">
+        <input type="radio" name="q_{{ q.pk }}" value="C">
+        <strong>C.</strong> {{ q.option_c }}
+      </label>
+      <label class="border rounded p-2 d-flex align-items-center gap-2" style="cursor:pointer">
+        <input type="radio" name="q_{{ q.pk }}" value="D">
+        <strong>D.</strong> {{ q.option_d }}
+      </label>
+    </div>
+  </div>
+  {% endfor %}
+
+  <button type="submit" class="btn btn-accent w-100"
+    onclick="return confirm('Submit quiz? You cannot retake it.')">
+    <i class="bi bi-send me-1"></i>Submit Quiz
+  </button>
+</form>
+
+<a href="/student/room/{{ quiz.room.pk }}/" class="btn btn-outline-secondary mt-3">
+  <i class="bi bi-arrow-left me-1"></i>Back to Room
+</a>
+{% endblock %}

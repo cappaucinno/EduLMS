@@ -1,0 +1,8 @@
+{{ school_name }} — Assignment Graded: {{ submission.assignment.title }}
+
+Hi {{ submission.student.get_full_name|default:submission.student.username }},
+
+Score: {{ submission.grade.score }} / {{ submission.assignment.max_score }}
+{% if submission.grade.feedback %}Feedback: {{ submission.grade.feedback }}{% endif %}
+
+Log in to view your full grade report.

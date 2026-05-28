@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
+  {% if not is_preview %}<meta http-equiv="refresh" content="60"/>{% endif %}
+  <title>{{ settings.maintenance_title }} — EduLMS</title>
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      font-family:'Outfit',system-ui,sans-serif;
+      background:linear-gradient(135deg,#0a0f2c 0%,#1a237e 55%,#0a0f2c 100%);
+      min-height:100vh;display:flex;flex-direction:column;align-items:center;
+      justify-content:center;padding:clamp(16px,4vw,40px);color:#fff;text-align:center;
+    }
+
+    /* Preview banner */
+    .preview-bar{
+      position:fixed;top:0;left:0;right:0;background:#ffd54f;color:#09112b;
+      padding:8px 20px;font-size:.82rem;font-weight:700;text-align:center;z-index:999;
+      display:flex;align-items:center;justify-content:center;gap:10px;
+    }
+
+    .wrap{max-width:620px;width:100%;{% if is_preview %}margin-top:36px;{% endif %}}
+
+    /* Animated gear */
+    .gear-wrap{
+      width:clamp(80px,15vw,110px);height:clamp(80px,15vw,110px);
+      margin:0 auto clamp(20px,4vw,32px);position:relative;display:flex;
+      align-items:center;justify-content:center;
+    }
+    .gear{
+      font-size:clamp(60px,12vw,90px);line-height:1;
+      animation:spin 10s linear infinite;display:block;
+      filter:drop-shadow(0 0 24px rgba(108,99,255,.55));
+    }
+    .gear-small{
+      font-size:clamp(28px,5vw,40px);position:absolute;
+      bottom:-4px;right:-4px;
+      animation:spin-rev 8s linear infinite;
+      filter:drop-shadow(0 0 12px rgba(255,213,79,.45));
+    }
+    @keyframes spin{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    @keyframes spin-rev{from{transform:rotate(0deg);}to{transform:rotate(-360deg);}}
+
+    /* Brand */
+    .brand{
+      font-size:clamp(1.5rem,4vw,2rem);font-weight:800;
+      color:#ffd54f;margin-bottom:6px;letter-spacing:-.5px;
+    }
+
+    /* Title */
+    h1{
+      font-size:clamp(1.6rem,4.5vw,2.6rem);font-weight:800;
+      line-height:1.1;margin-bottom:clamp(10px,2vw,16px);
+    }
+
+    /* Message */
+    .msg{
+      font-size:clamp(.88rem,1.8vw,1.05rem);opacity:.75;
+      line-height:1.72;margin-bottom:clamp(20px,4vw,36px);
+      max-width:480px;margin-left:auto;margin-right:auto;
+    }
+
+    /* Timer badge */
+    .timer-badge{
+      display:inline-flex;align-items:center;gap:8px;
+      background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.15);
+      border-radius:50px;padding:10px 22px;
+      font-size:clamp(.82rem,1.5vw,.92rem);font-weight:600;
+      margin-bottom:clamp(20px,4vw,32px);
+    }
+    .timer-badge .dot{
+      width:9px;height:9px;border-radius:50%;background:#ef4444;
+      animation:pulse 1.2s ease-in-out infinite;flex-shrink:0;
+    }
+    @keyframes pulse{0%,100%{opacity:1;transform:scale(1);}50%{opacity:.45;transform:scale(.85);}}
+
+    /* Countdown */
+    .countdown{
+      display:flex;gap:clamp(12px,2.5vw,24px);justify-content:center;
+      margin-bottom:clamp(24px,4vw,40px);flex-wrap:wrap;
+    }
+    .cd-box{
+      background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.12);
+      border-radius:14px;padding:clamp(14px,2.5vw,20px) clamp(16px,3vw,28px);
+      min-width:clamp(70px,12vw,90px);
+    }
+    .cd-num{font-size:clamp(1.8rem,4vw,2.5rem);font-weight:800;line-height:1;color:#ffd54f;}
+    .cd-lbl{font-size:clamp(.62rem,1.2vw,.72rem);opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+
+    /* Progress dots */
+    .progress-dots{display:flex;justify-content:center;gap:8px;margin-bottom:clamp(20px,4vw,32px);}
+    .progress-dots span{
+      width:8px;height:8px;border-radius:50%;background:rgba(255,255,255,.25);
+      animation:bounce 1.4s ease-in-out infinite;
+    }
+    .progress-dots span:nth-child(2){animation-delay:.2s;}
+    .progress-dots span:nth-child(3){animation-delay:.4s;}
+    @keyframes bounce{0%,80%,100%{transform:scale(1);}40%{transform:scale(1.3);background:#6c63ff;}}
+
+    /* Contact info */
+    .contact{
+      font-size:clamp(.75rem,1.4vw,.85rem);opacity:.5;margin-top:clamp(16px,3vw,28px);
+    }
+    .contact a{color:rgba(255,255,255,.65);text-decoration:none;}
+    .contact a:hover{opacity:1;color:#ffd54f;}
+
+    /* Page refresh hint */
+    .refresh-hint{font-size:.72rem;opacity:.35;margin-top:12px;}
+
+    @media(max-width:380px){
+      .countdown{gap:8px;}
+      .cd-box{padding:12px 14px;min-width:60px;}
+      .cd-num{font-size:1.5rem;}
+    }
+  </style>
+</head>
+<body>
+
+{% if is_preview %}
+<div class="preview-bar">
+  🔍 PREVIEW MODE — This is how the maintenance page will look. <a href="/superadmin/maintenance/" style="color:#09112b;text-decoration:underline;margin-left:8px;">← Back to Settings</a>
+</div>
+{% endif %}
+
+<div class="wrap">
+
+  <!-- Animated gears -->
+  <div class="gear-wrap" aria-hidden="true">
+    <span class="gear">⚙️</span>
+    <span class="gear-small">🔧</span>
+  </div>
+
+  <!-- Brand -->
+  <div class="brand">EduLMS</div>
+
+  <!-- Title -->
+  <h1>{{ settings.maintenance_title }}</h1>
+
+  <!-- Status pulse -->
+  <div class="timer-badge">
+    <span class="dot" aria-hidden="true"></span>
+    Maintenance in progress
+  </div>
+
+  <!-- Countdown (if end time set) -->
+  {% if settings.maintenance_end_time %}
+  <div class="countdown" id="countdown" aria-label="Time remaining">
+    <div class="cd-box"><div class="cd-num" id="cd-h">--</div><div class="cd-lbl">Hours</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-m">--</div><div class="cd-lbl">Minutes</div></div>
+    <div class="cd-box"><div class="cd-num" id="cd-s">--</div><div class="cd-lbl">Seconds</div></div>
+  </div>
+  {% else %}
+  <div class="progress-dots" aria-hidden="true">
+    <span></span><span></span><span></span>
+  </div>
+  {% endif %}
+
+  <!-- Message -->
+  <p class="msg">{{ settings.maintenance_message }}</p>
+
+  <!-- Contact -->
+  {% if settings.school_name or settings.school_contact_email %}
+  <div class="contact">
+    {% if settings.school_name %}<div>{{ settings.school_name }}</div>{% endif %}
+    {% if settings.school_contact_email %}
+    <div>Need help? <a href="mailto:{{ settings.school_contact_email }}">{{ settings.school_contact_email }}</a></div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div class="refresh-hint">This page refreshes automatically every 60 seconds.</div>
+</div>
+
+{% if settings.maintenance_end_time %}
+<script>
+(function(){
+  var endTime = new Date("{{ settings.maintenance_end_time|date:'c' }}").getTime();
+  function tick(){
+    var diff = endTime - Date.now();
+    if(diff <= 0){
+      document.getElementById('cd-h').textContent='00';
+      document.getElementById('cd-m').textContent='00';
+      document.getElementById('cd-s').textContent='00';
+      return;
+    }
+    var h = Math.floor(diff / 3600000);
+    var m = Math.floor((diff % 3600000) / 60000);
+    var s = Math.floor((diff % 60000) / 1000);
+    document.getElementById('cd-h').textContent = String(h).padStart(2,'0');
+    document.getElementById('cd-m').textContent = String(m).padStart(2,'0');
+    document.getElementById('cd-s').textContent = String(s).padStart(2,'0');
+  }
+  tick();
+  setInterval(tick, 1000);
+})();
+</script>
+{% endif %}
+
+</body>
+</html>

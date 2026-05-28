@@ -1,0 +1,228 @@
+{% extends 'base.html' %}
+{% block title %}My Profile{% endblock %}
+{% block page_title %}My Profile{% endblock %}
+{% block content %}
+
+<div class="row g-4">
+
+  <!-- LEFT — Avatar + Stats -->
+  <div class="col-12 col-md-4">
+    <div class="card p-4 text-center">
+
+      <!-- Profile image or initials -->
+      {% if user.profile_image %}
+        <img src="{{ user.profile_image.url }}"
+             alt="Profile"
+             style="width:100px;height:100px;border-radius:50%;object-fit:cover;margin:0 auto 14px;display:block;border:3px solid #6c63ff;">
+      {% else %}
+        <div style="width:100px;height:100px;background:linear-gradient(135deg,#6c63ff,#a29bfe);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;font-size:2.4rem;font-weight:700;color:#fff;">
+          {{ user.first_name|first|default:user.username|first|upper }}{{ user.last_name|first|upper }}
+        </div>
+      {% endif %}
+
+      <h5 class="fw-bold mb-0">{{ user.get_full_name|default:user.username }}</h5>
+      <p class="text-muted small mb-1">@{{ user.username }}</p>
+      <div class="d-flex justify-content-center gap-2 mb-3">
+        <span class="grade-badge">Grade {{ user.grade_level }}</span>
+        <span class="badge bg-primary">Student</span>
+      </div>
+      <div class="text-muted small">
+        <i class="bi bi-envelope me-1"></i>{{ user.email }}
+      </div>
+
+      <hr>
+
+      <!-- Stats grid -->
+      <div class="row g-2">
+        <div class="col-6">
+          <div class="p-2 rounded" style="background:#f0eeff;">
+            <div class="fw-bold fs-5" style="color:#6c63ff;">{{ enrolled_rooms }}</div>
+            <div class="text-muted" style="font-size:11px;">Rooms</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 rounded" style="background:#e1f5ee;">
+            <div class="fw-bold fs-5" style="color:#00b894;">{{ submissions_count }}</div>
+            <div class="text-muted" style="font-size:11px;">Submissions</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 rounded" style="background:#fff3cd;">
+            <div class="fw-bold fs-5" style="color:#e17055;">{{ quiz_attempts }}</div>
+            <div class="text-muted" style="font-size:11px;">Quizzes</div>
+          </div>
+        </div>
+        <div class="col-6">
+          <div class="p-2 rounded" style="background:#fceaf0;">
+            <div class="fw-bold fs-5" style="color:#e84393;">
+              {{ avg_score|default:"—" }}{% if avg_score %}<small style="font-size:11px;">%</small>{% endif %}
+            </div>
+            <div class="text-muted" style="font-size:11px;">Avg Score</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="mt-3 text-muted small">
+        <i class="bi bi-calendar me-1"></i>Joined {{ user.date_joined|date:"M Y" }}
+      </div>
+    </div>
+  </div>
+
+  <!-- RIGHT — Tabs -->
+  <div class="col-12 col-md-8 mt-3 mt-md-0">
+    <div class="card p-4">
+
+      <ul class="nav nav-tabs mb-4">
+        <li class="nav-item">
+          <button class="nav-link {% if active_tab == 'profile' %}active{% endif %}"
+                  onclick="switchTab('profile')" type="button">
+            <i class="bi bi-person me-1"></i>Edit Profile
+          </button>
+        </li>
+        <li class="nav-item">
+          <button class="nav-link {% if active_tab == 'password' %}active{% endif %}"
+                  onclick="switchTab('password')" type="button">
+            <i class="bi bi-shield-lock me-1"></i>Change Password
+          </button>
+        </li>
+      </ul>
+
+      <!-- Profile Tab -->
+      <div id="tab-profile" class="{% if active_tab != 'profile' %}d-none{% endif %}">
+        <form method="post" enctype="multipart/form-data">
+          {% csrf_token %}
+
+          <!-- Image upload section -->
+          <div class="mb-4 p-3 rounded" style="background:#f9f8ff;border:1px dashed #c0b8ff;">
+            <label class="form-label fw-bold small d-block">
+              <i class="bi bi-camera me-1"></i>Profile Photo
+            </label>
+            <!-- Preview -->
+            <div class="d-flex align-items-center gap-3 mb-2">
+              {% if user.profile_image %}
+                <img id="imgPreview" src="{{ user.profile_image.url }}"
+                     style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #6c63ff;">
+              {% else %}
+                <div id="imgPreview"
+                     style="width:60px;height:60px;border-radius:50%;background:linear-gradient(135deg,#6c63ff,#a29bfe);display:flex;align-items:center;justify-content:center;font-size:1.4rem;font-weight:700;color:#fff;">
+                  {{ user.first_name|first|default:user.username|first|upper }}
+                </div>
+              {% endif %}
+              <div>
+                {{ profile_form.profile_image }}
+                <div class="form-text text-muted">JPG or PNG · max 2 MB</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="row g-3">
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">First Name</label>
+              {{ profile_form.first_name }}
+            </div>
+            <div class="col-md-6">
+              <label class="form-label fw-bold small">Last Name</label>
+              {{ profile_form.last_name }}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Email</label>
+              {{ profile_form.email }}
+              {% if profile_form.email.errors %}
+                <div class="text-danger small">{{ profile_form.email.errors }}</div>
+              {% endif %}
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Grade Level</label>
+              <input class="form-control" value="Grade {{ user.grade_level }}" disabled>
+              <div class="form-text text-muted">Only your teacher can change your grade level.</div>
+            </div>
+            <div class="col-12">
+              <label class="form-label fw-bold small">Username</label>
+              <input class="form-control" value="{{ user.username }}" disabled>
+            </div>
+          </div>
+          <button type="submit" name="save_profile" class="btn btn-accent mt-4">
+            <i class="bi bi-check-lg me-1"></i>Save Changes
+          </button>
+        </form>
+      </div>
+
+      <!-- Password Tab -->
+      <div id="tab-password" class="{% if active_tab != 'password' %}d-none{% endif %}">
+        <div class="alert alert-info small mb-3">
+          <i class="bi bi-info-circle me-1"></i>
+          You received a default password by email when your account was approved. Change it here.
+        </div>
+        <form method="post">
+          {% csrf_token %}
+          <div class="mb-3">
+            <label class="form-label fw-bold small">Current Password</label>
+            {{ password_form.old_password }}
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-bold small">New Password</label>
+            {{ password_form.new_password }}
+            <div class="strength-bar mt-2"
+                 id="strengthBar"
+                 style="height:5px;border-radius:3px;background:#eee;width:0;transition:all .3s;"></div>
+            <div id="strengthText" class="form-text"></div>
+          </div>
+          <div class="mb-4">
+            <label class="form-label fw-bold small">Confirm New Password</label>
+            {{ password_form.confirm_password }}
+          </div>
+          {% if password_form.non_field_errors %}
+            <div class="alert alert-danger small">{{ password_form.non_field_errors }}</div>
+          {% endif %}
+          <button type="submit" name="change_password" class="btn btn-accent">
+            <i class="bi bi-shield-check me-1"></i>Change Password
+          </button>
+        </form>
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<script>
+function switchTab(tab) {
+  document.getElementById('tab-profile').classList.toggle('d-none', tab !== 'profile');
+  document.getElementById('tab-password').classList.toggle('d-none', tab !== 'password');
+  document.querySelectorAll('.nav-link').forEach((el, i) => {
+    el.classList.toggle('active', (i === 0 && tab === 'profile') || (i === 1 && tab === 'password'));
+  });
+}
+
+// Live image preview
+document.querySelector('[name="profile_image"]')?.addEventListener('change', function(e) {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = ev => {
+    const preview = document.getElementById('imgPreview');
+    preview.outerHTML = `<img id="imgPreview" src="${ev.target.result}"
+      style="width:60px;height:60px;border-radius:50%;object-fit:cover;border:2px solid #6c63ff;">`;
+  };
+  reader.readAsDataURL(file);
+});
+
+// Password strength meter
+const pw = document.querySelector('[name="new_password"]');
+const bar  = document.getElementById('strengthBar');
+const text = document.getElementById('strengthText');
+pw?.addEventListener('input', () => {
+  const v = pw.value;
+  let s = 0;
+  if (v.length >= 8) s++;
+  if (/[A-Z]/.test(v)) s++;
+  if (/[0-9]/.test(v)) s++;
+  if (/[^A-Za-z0-9]/.test(v)) s++;
+  const cols = ['#e74c3c','#e67e22','#f1c40f','#2ecc71'];
+  const labs = ['Weak','Fair','Good','Strong'];
+  bar.style.width      = (s * 25) + '%';
+  bar.style.background = cols[s - 1] || '#eee';
+  text.textContent     = v.length ? (labs[s - 1] || '') : '';
+  text.style.color     = cols[s - 1] || '#aaa';
+});
+</script>
+{% endblock %}

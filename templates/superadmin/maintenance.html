@@ -1,0 +1,295 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Maintenance &amp; Site Control{% endblock %}
+{% block page_title %}Maintenance &amp; Site Control{% endblock %}
+{% block content %}
+
+<!-- Live status banner -->
+<div class="alert {% if site.maintenance_mode %}alert-danger border-danger border-2{% else %}alert-success border-success border-2{% endif %} d-flex align-items-center justify-content-between flex-wrap gap-3 mb-4 rounded-3">
+  <div class="d-flex align-items-center gap-3">
+    <span style="font-size:1.6rem;">{% if site.maintenance_mode %}🔴{% else %}🟢{% endif %}</span>
+    <div>
+      <strong class="d-block">Site is {% if site.maintenance_mode %}in MAINTENANCE MODE{% else %}ONLINE and accessible{% endif %}</strong>
+      {% if site.maintenance_mode and site.maintenance_started %}
+      <span class="small opacity-75">Started: {{ site.maintenance_started|date:"M d, Y H:i" }}
+        {% if site.maintenance_end_time %} · Expected end: {{ site.maintenance_end_time|date:"M d, Y H:i" }}{% endif %}
+      </span>
+      {% endif %}
+    </div>
+  </div>
+  {% if site.maintenance_mode %}
+  <form method="post">{% csrf_token %}
+    <button name="action" value="disable_maintenance" class="btn btn-success fw-bold px-4">
+      <i class="bi bi-arrow-up-circle me-1"></i>Bring Site Back Online Now
+    </button>
+  </form>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+
+  <!-- ── COL 1: Maintenance Mode + Registration Control ── -->
+  <div class="col-12 col-xl-6">
+
+    <!-- Maintenance Mode Card -->
+    <div class="card p-4 mb-4 {% if site.maintenance_mode %}border-danger border-2{% endif %}">
+      <h5 class="fw-bold mb-1">
+        <i class="bi bi-tools me-2 text-danger"></i>Maintenance Mode
+        {% if site.maintenance_mode %}<span class="badge bg-danger ms-2">ACTIVE</span>{% endif %}
+      </h5>
+      <p class="text-muted small mb-4">
+        While maintenance mode is ON, all visitors see the maintenance page. Only superadmins can access the site.
+        <strong>API endpoints return HTTP 503.</strong>
+      </p>
+
+      {% if not site.maintenance_mode %}
+      <form method="post">{% csrf_token %}
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Page Title</label>
+          <input type="text" name="title" class="form-control" value="{{ site.maintenance_title }}" placeholder="We'll be right back!">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Message to Visitors</label>
+          <textarea name="message" class="form-control" rows="3" placeholder="EduLMS is undergoing maintenance...">{{ site.maintenance_message }}</textarea>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Expected End Time (optional)</label>
+          <input type="datetime-local" name="end_time" class="form-control">
+          <div class="form-text">Shown to visitors. Leave blank to hide.</div>
+        </div>
+        <button name="action" value="enable_maintenance" class="btn btn-danger fw-bold w-100"
+          onclick="return confirm('⚠️ This will block ALL users from the site. Continue?')">
+          <i class="bi bi-exclamation-triangle me-1"></i>Enable Maintenance Mode
+        </button>
+      </form>
+      {% else %}
+      <div class="p-3 rounded-3 bg-danger bg-opacity-10 border border-danger border-opacity-25">
+        <div class="fw-bold text-danger mb-1">⛔ Site is currently DOWN for maintenance</div>
+        <div class="small mb-1"><strong>Title:</strong> {{ site.maintenance_title }}</div>
+        <div class="small mb-1"><strong>Message:</strong> {{ site.maintenance_message }}</div>
+        {% if site.maintenance_end_time %}<div class="small text-muted"><strong>Expected back:</strong> {{ site.maintenance_end_time|date:"M d, Y H:i" }}</div>{% endif %}
+      </div>
+      {% endif %}
+    </div>
+
+    <!-- Registration Control Card -->
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-person-plus me-2 text-primary"></i>Registration Control</h5>
+      <p class="text-muted small mb-3">Temporarily close registrations without enabling full maintenance mode.</p>
+      <form method="post">{% csrf_token %}
+        <div class="d-flex flex-column gap-3 mb-3">
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 border">
+            <div>
+              <div class="fw-bold small">Student Registration</div>
+              <div class="text-muted" style="font-size:.78rem;">Allow new students to create accounts</div>
+            </div>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" name="allow_students" role="switch" id="swStudents"
+                {% if site.allow_student_registration %}checked{% endif %}>
+            </div>
+          </div>
+          <div class="d-flex align-items-center justify-content-between p-3 rounded-3 border">
+            <div>
+              <div class="fw-bold small">Teacher Registration</div>
+              <div class="text-muted" style="font-size:.78rem;">Allow new teachers to create accounts</div>
+            </div>
+            <div class="form-check form-switch mb-0">
+              <input class="form-check-input" type="checkbox" name="allow_teachers" role="switch" id="swTeachers"
+                {% if site.allow_teacher_registration %}checked{% endif %}>
+            </div>
+          </div>
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Closed Registration Message</label>
+          <input type="text" name="registration_message" class="form-control"
+            value="{{ site.registration_message }}"
+            placeholder="Registration is currently closed. Please contact your administrator.">
+          <div class="form-text">Shown to visitors when registration is disabled.</div>
+        </div>
+        <button name="action" value="save_registration" class="btn btn-primary fw-bold w-100">
+          <i class="bi bi-save me-1"></i>Save Registration Settings
+        </button>
+      </form>
+    </div>
+
+    <!-- School Contact Card -->
+    <div class="card p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-building me-2 text-success"></i>School Information</h5>
+      <p class="text-muted small mb-3">Shown in emails and the maintenance page.</p>
+      <form method="post">{% csrf_token %}
+        <div class="mb-2">
+          <label class="form-label fw-bold small">School Name</label>
+          <input type="text" name="school_name" class="form-control" value="{{ site.school_name }}" placeholder="EduLMS High School">
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-bold small">Contact Email</label>
+          <input type="email" name="contact_email" class="form-control" value="{{ site.school_contact_email }}" placeholder="admin@school.edu.ph">
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-bold small">Contact Phone</label>
+          <input type="text" name="contact_phone" class="form-control" value="{{ site.school_contact_phone }}" placeholder="+63 900 000 0000">
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-bold small">School Website</label>
+          <input type="url" name="school_website" class="form-control" value="{{ site.school_website }}" placeholder="https://school.edu.ph">
+        </div>
+        <div class="mb-3">
+          <label class="form-label fw-bold small">Address</label>
+          <textarea name="school_address" class="form-control" rows="2" placeholder="123 School St., City">{{ site.school_address }}</textarea>
+        </div>
+        <button name="action" value="save_contact" class="btn btn-success fw-bold w-100">
+          <i class="bi bi-save me-1"></i>Save School Info
+        </button>
+      </form>
+    </div>
+
+  </div>
+
+  <!-- ── COL 2: Banner + Preview + Status ── -->
+  <div class="col-12 col-xl-6">
+
+    <!-- Site Banner Card -->
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-megaphone me-2 text-warning"></i>Site-Wide Banner
+        {% if site.banner_enabled %}<span class="badge bg-warning text-dark ms-2">ACTIVE</span>{% endif %}
+      </h5>
+      <p class="text-muted small mb-3">A full-width alert bar shown at the top of every page for all users.</p>
+
+      {% if site.banner_enabled and site.banner_message %}
+      <div class="alert alert-{{ site.banner_type }} d-flex align-items-center gap-2 mb-3 py-2">
+        <i class="bi bi-info-circle-fill"></i>
+        <div class="flex-grow-1 small">{{ site.banner_message }}</div>
+        {% if site.banner_dismissible %}<button type="button" class="btn-close btn-sm" disabled></button>{% endif %}
+      </div>
+      {% endif %}
+
+      <form method="post">{% csrf_token %}
+        <div class="form-check form-switch mb-3">
+          <input class="form-check-input" type="checkbox" name="banner_enabled" id="swBanner"
+            {% if site.banner_enabled %}checked{% endif %} role="switch">
+          <label class="form-check-label fw-bold small" for="swBanner">Enable Banner</label>
+        </div>
+        <div class="mb-2">
+          <label class="form-label fw-bold small">Message <span class="text-muted">(max 300 chars)</span></label>
+          <input type="text" name="banner_message" class="form-control" maxlength="300"
+            value="{{ site.banner_message }}" placeholder="📣 System update scheduled for tonight at 10 PM.">
+        </div>
+        <div class="row g-2 mb-2">
+          <div class="col-6">
+            <label class="form-label fw-bold small">Type</label>
+            <select name="banner_type" class="form-select">
+              <option value="info" {% if site.banner_type == 'info' %}selected{% endif %}>ℹ️ Info</option>
+              <option value="warning" {% if site.banner_type == 'warning' %}selected{% endif %}>⚠️ Warning</option>
+              <option value="success" {% if site.banner_type == 'success' %}selected{% endif %}>✅ Success</option>
+              <option value="danger" {% if site.banner_type == 'danger' %}selected{% endif %}>🚨 Danger</option>
+            </select>
+          </div>
+          <div class="col-6">
+            <label class="form-label fw-bold small">Link URL (optional)</label>
+            <input type="url" name="banner_link" class="form-control" value="{{ site.banner_link }}" placeholder="https://...">
+          </div>
+        </div>
+        <div class="form-check mb-3">
+          <input class="form-check-input" type="checkbox" name="banner_dismissible" id="bannerDismiss"
+            {% if site.banner_dismissible %}checked{% endif %}>
+          <label class="form-check-label small" for="bannerDismiss">Dismissible (users can close it)</label>
+        </div>
+        <button name="action" value="save_banner" class="btn btn-warning fw-bold text-dark w-100">
+          <i class="bi bi-save me-1"></i>Save Banner Settings
+        </button>
+      </form>
+    </div>
+
+    <!-- Quick Actions -->
+    <div class="card p-4 mb-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-lightning-charge me-2 text-primary"></i>Quick Actions</h5>
+      <div class="d-flex flex-column gap-2">
+
+        <a href="/superadmin/errors/" class="btn btn-outline-danger d-flex align-items-center gap-2">
+          <i class="bi bi-bug"></i>
+          <div class="text-start"><div class="fw-bold">View Error Logs</div><div style="font-size:.75rem;opacity:.7;">See unresolved system errors</div></div>
+        </a>
+
+        <a href="/superadmin/users/?status=pending" class="btn btn-outline-warning d-flex align-items-center gap-2">
+          <i class="bi bi-person-exclamation"></i>
+          <div class="text-start"><div class="fw-bold">Pending Approvals</div><div style="font-size:.75rem;opacity:.7;">Users waiting for account access</div></div>
+        </a>
+
+        <a href="/superadmin/api-docs/" class="btn btn-outline-primary d-flex align-items-center gap-2">
+          <i class="bi bi-code-slash"></i>
+          <div class="text-start"><div class="fw-bold">API Documentation</div><div style="font-size:.75rem;opacity:.7;">REST API reference and tester</div></div>
+        </a>
+
+        <form method="post" class="m-0">{% csrf_token %}
+          <button name="action" value="clear_banner" class="btn btn-outline-secondary w-100 d-flex align-items-center gap-2">
+            <i class="bi bi-x-circle"></i>
+            <div class="text-start"><div class="fw-bold">Clear Banner</div><div style="font-size:.75rem;opacity:.7;">Disable and wipe the site banner</div></div>
+          </button>
+        </form>
+      </div>
+    </div>
+
+    <!-- System Status Card -->
+    <div class="card p-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-activity me-2 text-info"></i>System Status</h5>
+      <div class="d-flex flex-column gap-2">
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Site Status</div>
+          <span class="badge {% if site.maintenance_mode %}bg-danger{% else %}bg-success{% endif %}">
+            {% if site.maintenance_mode %}🔴 Maintenance{% else %}🟢 Online{% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Site Banner</div>
+          <span class="badge {% if site.banner_enabled %}bg-warning text-dark{% else %}bg-secondary{% endif %}">
+            {% if site.banner_enabled %}Active{% else %}Off{% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Student Registration</div>
+          <span class="badge {% if site.allow_student_registration %}bg-success{% else %}bg-danger{% endif %}">
+            {% if site.allow_student_registration %}Open{% else %}Closed{% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Teacher Registration</div>
+          <span class="badge {% if site.allow_teacher_registration %}bg-success{% else %}bg-danger{% endif %}">
+            {% if site.allow_teacher_registration %}Open{% else %}Closed{% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Last Updated</div>
+          <span class="text-muted small">
+            {% if site.updated_at %}{{ site.updated_at|date:"M d, Y H:i" }}{% else %}—{% endif %}
+            {% if site.updated_by %}by {{ site.updated_by.username }}{% endif %}
+          </span>
+        </div>
+        <div class="d-flex justify-content-between align-items-center p-2 rounded-2" style="background:#f8fafc;">
+          <div class="fw-bold small">Django Version</div>
+          <span class="text-muted small">{% load static %}{{ request.META.SERVER_SOFTWARE|default:"Django 4.2" }}</span>
+        </div>
+      </div>
+
+      <!-- Preview maintenance page -->
+      <div class="mt-3">
+        <a href="/maintenance/preview/" target="_blank" class="btn btn-outline-secondary btn-sm w-100">
+          <i class="bi bi-eye me-1"></i>Preview Maintenance Page
+        </a>
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<script>
+// Live character counter for banner
+const bannerInput = document.querySelector('[name="banner_message"]');
+if(bannerInput){
+  const lbl = document.createElement('small');
+  lbl.className = 'form-text text-muted';
+  bannerInput.parentNode.appendChild(lbl);
+  function updateCount(){lbl.textContent = bannerInput.value.length + '/300 chars';}
+  bannerInput.addEventListener('input', updateCount);
+  updateCount();
+}
+</script>
+{% endblock %}

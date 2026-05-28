@@ -1,0 +1,99 @@
+{% extends 'base.html' %}
+{% block title %}Student Approvals{% endblock %}
+{% block page_title %}Student Account Approvals{% endblock %}
+{% block content %}
+
+<div class="alert alert-info small rounded-3 mb-4">
+  <i class="bi bi-info-circle me-1"></i>
+  As a teacher, you approve <strong>student</strong> accounts here.
+  Teacher accounts are approved by the <strong>Admin</strong> via the Admin Portal.
+</div>
+
+<!-- Pending Students -->
+<div class="card p-4 mb-4">
+  <div class="d-flex align-items-center mb-3 gap-2">
+    <h5 class="mb-0 fw-bold"><i class="bi bi-person-exclamation me-2 text-warning"></i>Pending Student Approvals</h5>
+    <span class="badge bg-warning text-dark">{{ students.count }}</span>
+  </div>
+  {% if students %}
+  <div class="table-responsive">
+  <table class="table table-hover align-middle">
+    <thead class="table-light">
+      <tr><th>Name</th><th>Username</th><th>Grade Level</th><th>Email</th><th>Registered</th><th>Action</th></tr>
+    </thead>
+    <tbody>
+      {% for s in students %}
+      <tr>
+        <td class="fw-bold">{{ s.get_full_name|default:"—" }}</td>
+        <td>@{{ s.username }}</td>
+        <td>
+          {% if s.grade_level %}
+            <span class="grade-badge">Grade {{ s.grade_level }}</span>
+          {% else %}
+            <span class="text-danger small">Not set</span>
+          {% endif %}
+        </td>
+        <td class="small">{{ s.email|default:"—" }}</td>
+        <td class="text-muted small">{{ s.date_joined|date:"M d, Y" }}</td>
+        <td>
+          <form method="post" action="/teacher/students/{{ s.pk }}/approve/" class="d-inline">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-success me-1">
+              <i class="bi bi-check-lg"></i> Approve
+            </button>
+          </form>
+          <form method="post" action="/teacher/students/{{ s.pk }}/reject/" class="d-inline"
+                onsubmit="return confirm('Permanently delete this student account?')">
+            {% csrf_token %}
+            <button type="submit" class="btn btn-sm btn-outline-danger">
+              <i class="bi bi-x-lg"></i> Reject
+            </button>
+          </form>
+        </td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+  {% else %}
+    <div class="text-center py-4 text-muted">
+      <i class="bi bi-person-check fs-1 text-success"></i>
+      <p class="mt-2 mb-0">No pending student approvals!</p>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Approved Students -->
+<div class="card p-4">
+  <div class="d-flex align-items-center mb-3 gap-2">
+    <h5 class="mb-0 fw-bold"><i class="bi bi-people me-2 text-success"></i>Approved Students</h5>
+    <span class="badge bg-success">{{ approved.count }}</span>
+  </div>
+  {% if approved %}
+  <div class="table-responsive">
+  <table class="table table-sm align-middle">
+    <thead class="table-light">
+      <tr><th>Name</th><th>Username</th><th>Grade Level</th><th>Email</th><th>Joined</th></tr>
+    </thead>
+    <tbody>
+      {% for s in approved %}
+      <tr>
+        <td class="fw-bold">{{ s.get_full_name|default:"—" }}</td>
+        <td>@{{ s.username }}</td>
+        <td>{% if s.grade_level %}<span class="grade-badge">Grade {{ s.grade_level }}</span>{% else %}—{% endif %}</td>
+        <td class="small">{{ s.email|default:"—" }}</td>
+        <td class="text-muted small">{{ s.date_joined|date:"M d, Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+  {% else %}
+    <div class="text-center py-3 text-muted small">No approved students yet.</div>
+  {% endif %}
+</div>
+
+<a href="/teacher/dashboard/" class="btn btn-outline-secondary mt-3">
+  <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+</a>
+{% endblock %}

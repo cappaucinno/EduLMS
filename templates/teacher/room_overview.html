@@ -1,0 +1,82 @@
+{% extends 'base.html' %}
+{% block title %}{{ room }}{% endblock %}
+{% block page_title %}{{ room.name }}{% endblock %}
+{% block content %}
+
+<!-- Header bar -->
+<div class="d-flex flex-wrap gap-2 mb-4 align-items-center">
+  <span class="grade-badge fs-6">Grade {{ room.grade_level }}</span>
+  <span class="subject-tag fs-6">{{ room.subject }}</span>
+  <span class="text-muted small ms-2"><i class="bi bi-person me-1"></i>{{ room.teacher.get_full_name }}</span>
+  <div class="ms-auto d-flex gap-2">
+    <a href="/teacher/room/{{ room.pk }}/students/" class="btn btn-sm btn-outline-success">Manage Students</a>
+    <a href="/teacher/room/{{ room.pk }}/live/" class="btn btn-sm btn-outline-danger"><i class="bi bi-camera-video me-1"></i>Live Class</a>
+          <a href="/teacher/room/{{ room.pk }}/edit/" class="btn btn-sm btn-outline-secondary">Edit Room</a>
+  </div>
+</div>
+
+<div class="row g-3">
+  <!-- Lessons -->
+  <div class="col-12 col-md-6">
+    <div class="card p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-journals me-1 text-primary"></i>Lessons <span class="badge bg-light text-dark">{{ lessons.count }}</span></h6>
+        <a href="/teacher/room/{{ room.pk }}/lessons/" class="btn btn-sm btn-accent">+ Add</a>
+      </div>
+      {% for l in lessons %}<div class="border-bottom pb-1 mb-1 small">{{ forloop.counter }}. {{ l.title }}</div>{% empty %}<p class="text-muted small">None yet.</p>{% endfor %}
+    </div>
+  </div>
+  <!-- Materials -->
+  <div class="col-12 col-md-6">
+    <div class="card p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-arrow-down me-1 text-success"></i>Materials <span class="badge bg-light text-dark">{{ materials.count }}</span></h6>
+        <a href="/teacher/room/{{ room.pk }}/materials/" class="btn btn-sm btn-outline-success">+ Add</a>
+      </div>
+      {% for m in materials %}<div class="border-bottom pb-1 mb-1 small">{{ m.title }}</div>{% empty %}<p class="text-muted small">None yet.</p>{% endfor %}
+    </div>
+  </div>
+  <!-- Assignments -->
+  <div class="col-12 col-md-6">
+    <div class="card p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-file-earmark-check me-1 text-warning"></i>Assignments <span class="badge bg-light text-dark">{{ assignments.count }}</span></h6>
+        <a href="/teacher/room/{{ room.pk }}/assignments/" class="btn btn-sm btn-outline-warning">+ Add</a>
+      </div>
+      {% for a in assignments %}
+        <div class="border-bottom pb-1 mb-1 small d-flex justify-content-between">
+          <span>{{ a.title }}</span>
+          <a href="/teacher/assignment/{{ a.pk }}/submissions/" class="text-primary">Submissions ({{ a.submissions.count }})</a>
+        </div>
+      {% empty %}<p class="text-muted small">None yet.</p>{% endfor %}
+    </div>
+  </div>
+  <!-- Quizzes -->
+  <div class="col-12 col-md-6">
+    <div class="card p-3 h-100">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-question-circle me-1 text-info"></i>Quizzes <span class="badge bg-light text-dark">{{ quizzes.count }}</span></h6>
+        <a href="/teacher/room/{{ room.pk }}/quiz/" class="btn btn-sm btn-outline-info">+ Add</a>
+      </div>
+      {% for q in quizzes %}<div class="border-bottom pb-1 mb-1 small d-flex justify-content-between"><span>{{ q.title }}</span><a href="/teacher/quiz/{{ q.pk }}/questions/" class="text-primary">Questions ({{ q.questions.count }})</a></div>{% empty %}<p class="text-muted small">None yet.</p>{% endfor %}
+    </div>
+  </div>
+  <!-- Students -->
+  <div class="col-12">
+    <div class="card p-3">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-people me-1 text-success"></i>Assigned Students <span class="badge bg-light text-dark">{{ students.count }}</span></h6>
+        <a href="/teacher/room/{{ room.pk }}/students/" class="btn btn-sm btn-outline-success">Manage</a>
+      </div>
+      <div class="d-flex flex-wrap gap-2">
+        {% for rs in students %}
+          <span class="badge bg-light text-dark border">{{ rs.student.get_full_name|default:rs.student.username }}</span>
+        {% empty %}
+          <p class="text-muted small">No students assigned yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+<a href="/teacher/dashboard/" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+{% endblock %}

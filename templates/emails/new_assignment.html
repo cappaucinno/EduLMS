@@ -1,0 +1,12 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#128203; New Assignment Posted</h2>
+<p>A new assignment has been posted in <strong>{{ assignment.room.name }}</strong>.</p>
+<div class="highlight">
+  <p>&#128203; <strong>{{ assignment.title }}</strong><br>
+     &#128198; Due: <strong>{{ assignment.due_date|date:"F d, Y H:i" }}</strong><br>
+     &#11088; Max Score: {{ assignment.max_score }} points</p>
+</div>
+<p>{{ assignment.description|truncatechars:200 }}</p>
+<a href="#" class="btn">Submit Assignment</a>
+{% endblock %}

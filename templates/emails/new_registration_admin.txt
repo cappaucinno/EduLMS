@@ -1,0 +1,7 @@
+{{ school_name }} — New {{ new_user.role|title }} Awaiting Approval
+
+Name: {{ new_user.get_full_name|default:new_user.username }}
+Username: {{ new_user.username }}
+Email: {{ new_user.email|default:"Not provided" }}
+
+Please log in to the Admin Portal to approve or reject this account.

@@ -1,0 +1,7 @@
+{{ school_name }} — New Student Awaiting Approval
+
+Name: {{ student.get_full_name|default:student.username }}
+Grade: {{ student.grade_level|default:"Not set" }}
+Email: {{ student.email|default:"Not provided" }}
+
+Visit /teacher/students/pending/ to approve or reject.

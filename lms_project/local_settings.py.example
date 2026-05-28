@@ -1,0 +1,20 @@
+# ============================================================
+# COPY THIS FILE to: lms_project/local_settings.py
+# Then fill in your Gmail credentials below.
+# This file is .gitignored so your password stays private.
+# ============================================================
+
+# Step 1: Enable 2-Factor Authentication on your Gmail
+# Step 2: Go to: myaccount.google.com → Security → App Passwords
+# Step 3: Select App: Mail | Device: Other → name it "EduLMS"
+# Step 4: Copy the 16-character App Password Gmail gives you
+# Step 5: Paste it as EMAIL_HOST_PASSWORD below (spaces are OK)
+
+EMAIL_BACKEND      = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST         = 'smtp.gmail.com'
+EMAIL_PORT         = 587
+EMAIL_USE_TLS      = True
+EMAIL_HOST_USER    = 'yourschool@gmail.com'        # ← change this
+EMAIL_HOST_PASSWORD = 'xxxx xxxx xxxx xxxx'        # ← paste App Password here
+DEFAULT_FROM_EMAIL = 'EduLMS <yourschool@gmail.com>'
+SCHOOL_NAME        = 'Your High School'            # ← change this

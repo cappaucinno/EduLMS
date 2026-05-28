@@ -1,0 +1,17 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#128272; Verify your email address</h2>
+<p>Hi{% if name %} <strong>{{ name }}</strong>{% endif %},</p>
+<p>To complete your student registration on <strong>{{ school_name }}</strong>, enter the verification code below:</p>
+
+<div style="text-align:center;margin:28px 0;">
+  <div style="display:inline-block;background:#1a1a2e;color:#fff;font-size:36px;font-weight:700;letter-spacing:14px;padding:20px 36px;border-radius:14px;font-family:'Courier New',monospace;">
+    {{ otp_code }}
+  </div>
+</div>
+
+<div class="highlight">
+  <p>&#9203; This code expires in <strong>10 minutes</strong>. Do not share it with anyone.</p>
+</div>
+<p style="font-size:13px;color:#888;">If you did not request this, please ignore this email. No account will be created.</p>
+{% endblock %}

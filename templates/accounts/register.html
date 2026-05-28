@@ -1,0 +1,113 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0,maximum-scale=5.0"/>
+  <meta name="theme-color" content="#1a1a2e"/>
+  <link rel="icon" type="image/png" href="{% static 'favicon/1.png' %}">
+  <title>Register — EduLMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    *{box-sizing:border-box;margin:0;padding:0;}
+    body{
+      background:linear-gradient(135deg,#1a1a2e,#6c63ff);
+      min-height:100vh;padding:clamp(12px,3vw,30px);
+      display:flex;align-items:center;justify-content:center;
+      font-family:'Segoe UI',system-ui,sans-serif;
+    }
+    .auth-card{
+      background:#fff;border-radius:clamp(14px,3vw,20px);
+      box-shadow:0 20px 60px rgba(0,0,0,.28);
+      width:100%;max-width:500px;
+      padding:clamp(24px,5vw,36px) clamp(20px,5vw,36px);
+      margin:auto;
+    }
+    .brand{font-size:clamp(1.5rem,5vw,1.8rem);font-weight:800;color:#6c63ff;text-align:center;}
+    .form-control,.form-select{border-radius:10px;padding:clamp(9px,2vw,11px) clamp(12px,2vw,14px);font-size:clamp(14px,3.5vw,15px);}
+    .form-label{font-weight:600;font-size:clamp(.78rem,2.5vw,.85rem);}
+    .btn-primary{background:#6c63ff;border:none;border-radius:10px;padding:clamp(10px,2.5vw,12px);font-weight:600;width:100%;font-size:clamp(.9rem,3vw,1rem);}
+    .btn-primary:hover{background:#574fd6;}
+    .form-control,.form-select,.btn-primary{min-height:44px;}
+    .info-banner{background:#f0eeff;border-radius:10px;padding:12px 14px;margin-bottom:18px;border:1px solid #d5d0ff;}
+    .info-banner p{margin:0;font-size:clamp(.75rem,2.5vw,.82rem);color:#534ab7;}
+    .step{display:inline-flex;align-items:center;justify-content:center;width:20px;height:20px;background:#6c63ff;color:#fff;border-radius:50%;font-size:10px;font-weight:700;margin-right:5px;flex-shrink:0;}
+    .approval-note{display:none;font-size:clamp(.72rem,2vw,.8rem);padding:8px 12px;border-radius:8px;margin-top:6px;}
+    .note-student{background:#fff3cd;color:#856404;border:1px solid #ffc107;}
+    .note-teacher{background:#cce5ff;color:#004085;border:1px solid #b8daff;}
+    #grade-group{display:none;}
+    @media(max-width:360px){.auth-card{padding:18px 14px;}}
+  </style>
+</head>
+<body>
+<div class="auth-card">
+  <div class="brand mb-1"><i class="bi bi-mortarboard-fill"></i> EduLMS</div>
+  <p class="text-center text-muted mb-3" style="font-size:.82rem;">Create your account</p>
+
+  <div class="info-banner">
+    <p><strong>How it works:</strong></p>
+    <p class="mt-1 mb-0">
+      <span class="step">1</span>Fill form &amp; verify email<br>
+      <span class="step" style="margin-top:4px;">2</span>Wait for approval<br>
+      <span class="step" style="margin-top:4px;">3</span>Receive <strong>password by email</strong>
+    </p>
+  </div>
+
+  {% if form.errors %}
+    <div class="alert alert-danger py-2 small">
+      {% for f in form %}{% for e in f.errors %}<div>{{ e }}</div>{% endfor %}{% endfor %}
+      {% for e in form.non_field_errors %}<div>{{ e }}</div>{% endfor %}
+    </div>
+  {% endif %}
+
+  <form method="post" action="/accounts/register/">
+    {% csrf_token %}
+    <div class="row g-2 mb-2">
+      <div class="col-6">
+        <label class="form-label">First Name <span class="text-danger">*</span></label>
+        {{ form.first_name }}
+      </div>
+      <div class="col-6">
+        <label class="form-label">Last Name <span class="text-danger">*</span></label>
+        {{ form.last_name }}
+      </div>
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Username <span class="text-danger">*</span></label>
+      {{ form.username }}
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Email <span class="text-danger">*</span></label>
+      {{ form.email }}
+      <div class="form-text" style="font-size:.75rem;">Your password will be sent here after approval.</div>
+    </div>
+    <div class="mb-2">
+      <label class="form-label">Role <span class="text-danger">*</span></label>
+      {{ form.role }}
+      <div class="approval-note note-student" id="note-student"><i class="bi bi-clock me-1"></i>Approved by a <strong>Teacher</strong>.</div>
+      <div class="approval-note note-teacher" id="note-teacher"><i class="bi bi-shield-check me-1"></i>Approved by the <strong>Admin</strong>.</div>
+    </div>
+    <div class="mb-3" id="grade-group">
+      <label class="form-label">Grade Level <span class="text-danger">*</span></label>
+      {{ form.grade_level }}
+    </div>
+    <button type="submit" class="btn btn-primary">
+      <i class="bi bi-arrow-right me-1"></i>Continue to Email Verification
+    </button>
+  </form>
+  <p class="text-center mt-3 mb-0" style="font-size:.85rem;">
+    Have an account? <a href="/accounts/login/" style="color:#6c63ff;font-weight:600;">Login</a>
+  </p>
+</div>
+<script>
+var role=document.querySelector('[name="role"]');
+var gg=document.getElementById('grade-group');
+var ns=document.getElementById('note-student');
+var nt=document.getElementById('note-teacher');
+function upd(){var v=role.value;gg.style.display=v==='student'?'block':'none';ns.style.display=v==='student'?'block':'none';nt.style.display=v==='teacher'?'block':'none';}
+if(role){role.addEventListener('change',upd);upd();}
+</script>
+</body>
+</html>
+

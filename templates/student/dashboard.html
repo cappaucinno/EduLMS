@@ -1,0 +1,119 @@
+{% extends 'base.html' %}
+{% block title %}My Dashboard{% endblock %}
+{% block page_title %}My Rooms{% endblock %}
+{% block content %}
+
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c63ff,#a29bfe)">
+      <div class="fs-2 fw-bold">{{ assignments.count }}</div>
+      <div class="small">My Rooms</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#00b894,#00cec9)">
+      <div class="fs-2 fw-bold">{{ grades.count|add:attempts.count }}</div>
+      <div class="small">Graded Work</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">
+      <div class="fs-2 fw-bold">Grade {{ user.grade_level }}</div>
+      <div class="small">Your Level</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fd79a8,#e84393)">
+      <div class="fs-2 fw-bold">{{ user.get_full_name|truncatechars:8|default:"—" }}</div>
+      <div class="small">Student</div>
+    </div>
+  </div>
+</div>
+
+<!-- Assigned Rooms -->
+<div class="card p-4 mb-4">
+  <h5 class="fw-bold mb-4"><i class="bi bi-door-open me-2"></i>My Rooms</h5>
+  {% if assignments %}
+    <div class="row g-3">
+      {% for rs in assignments %}
+      {% with room=rs.room %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-0" style="background:#fafafa;border-left:4px solid #6c63ff!important;border-radius:14px;">
+          <div class="d-flex gap-2 mb-2 flex-wrap">
+            <span class="grade-badge">Grade {{ room.grade_level }}</span>
+            <span class="subject-tag">{{ room.subject }}</span>
+          </div>
+          <h6 class="fw-bold mb-1">{{ room.name }}</h6>
+          <p class="text-muted small mb-2">{{ room.description|truncatechars:70|default:"" }}</p>
+          <div class="text-muted small mb-3">
+            <i class="bi bi-person-circle me-1"></i>{{ room.teacher.get_full_name|default:room.teacher.username }}
+          </div>
+          <div class="d-flex gap-2 mt-auto flex-wrap">
+            <a href="/student/room/{{ room.pk }}/" class="btn btn-sm btn-accent">
+              <i class="bi bi-arrow-right-circle me-1"></i>Enter Room
+            </a>
+          </div>
+        </div>
+      </div>
+      {% endwith %}
+      {% endfor %}
+    </div>
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-door-closed fs-1"></i>
+      <p class="mt-2 mb-0">You have not been assigned to any rooms yet.</p>
+      <small>Please wait for your teacher to assign you to a room.</small>
+    </div>
+  {% endif %}
+</div>
+
+<!-- Recent Grades -->
+{% if grades %}
+<div class="card p-4">
+  <h5 class="fw-bold mb-3"><i class="bi bi-award me-2"></i>Recent Grades</h5>
+  <table class="table table-hover table-sm align-middle">
+    <thead class="table-light">
+      <tr><th>Assignment</th><th>Room</th><th>Score</th><th>Feedback</th></tr>
+    </thead>
+    <tbody>
+      {% for grade in grades|slice:":5" %}
+      <tr>
+        <td class="fw-bold">{{ grade.submission.assignment.title }}</td>
+        <td>
+          <span class="subject-tag">{{ grade.submission.assignment.room.subject }}</span>
+        </td>
+        <td>
+          <span class="badge bg-primary">{{ grade.score }}/{{ grade.submission.assignment.max_score }}</span>
+        </td>
+        <td class="text-muted small">{{ grade.feedback|truncatechars:50|default:"—" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="/student/grades/" class="btn btn-sm btn-outline-primary">View All Grades</a>
+</div>
+{% endif %}
+
+{% if attempts %}
+<div class="card p-4 mt-4">
+  <h5 class="fw-bold mb-3"><i class="bi bi-question-circle me-2"></i>Recent Quiz Scores</h5>
+  <table class="table table-hover table-sm align-middle">
+    <thead class="table-light">
+      <tr><th>Quiz</th><th>Room</th><th>Score</th><th>Date</th></tr>
+    </thead>
+    <tbody>
+      {% for attempt in attempts|slice:":5" %}
+      <tr>
+        <td class="fw-bold">{{ attempt.quiz.title }}</td>
+        <td><span class="subject-tag">{{ attempt.quiz.room.subject }}</span></td>
+        <td><span class="badge bg-primary">{{ attempt.score }}%</span></td>
+        <td class="text-muted small">{{ attempt.attempted_at|date:"M d, Y" }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+  <a href="/student/grades/" class="btn btn-sm btn-outline-primary">View All Grades</a>
+</div>
+{% endif %}
+
+{% endblock %}

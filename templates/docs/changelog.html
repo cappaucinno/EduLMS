@@ -1,0 +1,155 @@
+{% extends 'docs/base_doc.html' %}
+{% block doc_title %}Changelog — EduLMS{% endblock %}
+{% block doc_type %}Changelog{% endblock %}
+{% block content %}
+
+<div class="doc-header">
+  <div class="school">EduLMS High School Learning Management System</div>
+  <h1>Changelog</h1>
+  <div class="meta">
+    <span>📅 All versions documented</span>
+    <span>🔄 Latest: v10.0</span>
+  </div>
+</div>
+
+{% for entry in changelog %}{% endfor %}
+
+<div style="border-left:3px solid var(--accent);padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge">v10.0</span>
+    <strong>Password Setup via Email Link + Profile Photos</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Removed password fields from registration form — students set their own password via secure email link after approval</li>
+    <li>Password setup link (72-hour expiry) sent on teacher/student approval instead of generated default password</li>
+    <li>Profile photo upload for both teachers and students with live preview</li>
+    <li>Avatar shown in topbar, links directly to profile page</li>
+    <li>Teacher profile page at <code>/accounts/teacher-profile/</code></li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #10b981;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge green">v9.0</span>
+    <strong>Password Recovery + Student Profile</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Forgot password flow with secure reset link (1-hour expiry)</li>
+    <li>Student profile page with stats (rooms, submissions, quiz attempts, average score)</li>
+    <li>Change password tab with live strength meter</li>
+    <li>Superuser redirects to custom admin portal instead of Django /admin/</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #f59e0b;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge yellow">v8.0</span>
+    <strong>Email System Fixes + Announcement Popup</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Fixed announcement email (was referencing wrong field names <code>.body</code>→<code>.content</code>)</li>
+    <li>Email now required in registration form; duplicate check added</li>
+    <li>All email sends wrapped in try/except with proper error feedback</li>
+    <li>Tab detection restricted to students only (not teachers)</li>
+    <li>Favicon added to all pages including error pages and standalone auth pages</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #8b5cf6;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge" style="background:#ede9fe;color:#7c3aed;">v7.0</span>
+    <strong>Announcement Popup + Tab Detection</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Bell icon with unread badge counter in topbar</li>
+    <li>Slide-in announcement panel with type filters (Notice/Event/Exam/Urgent/Holiday)</li>
+    <li>Click to open full detail modal with mark-as-read</li>
+    <li>Auto-popup first unread announcement on login (once per session)</li>
+    <li>Announcement scheduling (future date), pinning, file attachment, external link</li>
+    <li>Read analytics per announcement for teachers</li>
+    <li>Tab switch detection — full-screen warning overlay for students, logs to <code>TabViolation</code> table</li>
+    <li>Quiz page: right-click disabled, F12 and DevTools shortcuts blocked</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #ec4899;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge" style="background:#fce7f3;color:#be185d;">v6.0</span>
+    <strong>OTP Email Verification on Registration</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>6-digit OTP sent to student email on registration (10-minute expiry, 5-attempt limit)</li>
+    <li>Beautiful OTP entry page with auto-advance, paste support, countdown timer, resend cooldown</li>
+    <li>Teacher registration skips OTP — goes straight to pending Admin approval</li>
+    <li>Accounts created with unusable password until approval</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #0ea5e9;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge" style="background:#e0f2fe;color:#0369a1;">v5.0</span>
+    <strong>Email Notifications + Announcement System</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>13 email notification triggers (registration, approval, room assignment, grading, etc.)</li>
+    <li>HTML email templates with school branding</li>
+    <li>Announcement system with audience targeting by role and grade level</li>
+    <li>Teacher/Admin/Everyone email blasts on announcement post</li>
+    <li>Gmail SMTP support via <code>local_settings.py</code> override</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #14b8a6;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge green">v4.0</span>
+    <strong>CSRF Fix + Teacher Approval by Admin</strong>
+    <span style="color:var(--muted);font-size:.78wr;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Fixed CSRF 403 errors (added <code>CSRF_TRUSTED_ORIGINS</code> for Django 4.x)</li>
+    <li>Teachers now require Admin approval (previously auto-approved)</li>
+    <li>Students require Teacher approval</li>
+    <li>Register page shows role-specific approval notes dynamically</li>
+    <li>Admin panel enhanced with bulk approve action and pending badge</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid #6c63ff;padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge">v3.0</span>
+    <strong>High School Room System Redesign</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Complete redesign: Course → Room (1 subject + 1 grade level)</li>
+    <li>Teacher-only student assignment (no self-enrollment)</li>
+    <li>Grade level enforced on User model (Grade 7–12)</li>
+    <li>Subjects: English, Filipino, Mathematics, Science, AP, TLE, MAPEH, ESP, ICT, Research</li>
+    <li>Materials module (file upload + external links)</li>
+    <li>Room overview page for teachers</li>
+  </ul>
+</div>
+
+<div style="border-left:3px solid var(--muted);padding-left:20px;margin-bottom:32px;">
+  <div style="display:flex;align-items:center;gap:12px;margin-bottom:8px;">
+    <span class="badge" style="background:#f1f5f9;color:#64748b;">v1.0–v2.0</span>
+    <strong>Initial LMS + RBAC Foundation</strong>
+    <span style="color:var(--muted);font-size:.78rem;margin-left:auto;">2025</span>
+  </div>
+  <ul>
+    <li>Django project with Admin/Teacher/Student roles</li>
+    <li>Custom User model with RBAC decorators</li>
+    <li>Basic course, enrollment, lesson, assignment, quiz, grading system</li>
+    <li>Bootstrap 5 dashboard UI with sidebar navigation</li>
+    <li>Error detection middleware with ErrorLog database table</li>
+    <li>Custom 400/403/404/500 error pages</li>
+  </ul>
+</div>
+
+{% endblock %}

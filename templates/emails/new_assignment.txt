@@ -1,0 +1,10 @@
+{{ school_name }} — New Assignment: {{ assignment.title }}
+
+Room: {{ assignment.room.name }}
+Assignment: {{ assignment.title }}
+Due: {{ assignment.due_date|date:"F d, Y H:i" }}
+Max Score: {{ assignment.max_score }}
+
+{{ assignment.description }}
+
+Log in to EduLMS to submit your assignment.

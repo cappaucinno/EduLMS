@@ -1,0 +1,523 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0"/>
+  <meta name="theme-color" content="#1a1a2e"/>
+  <meta name="apple-mobile-web-app-capable" content="yes"/>
+  <title>{% block title %}EduLMS{% endblock %}</title>
+  <link rel="icon" type="image/png" href="{% static 'favicon/1.png' %}">
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+  :root{
+    --accent:#6c63ff;
+    --accent-dark:#574fd6;
+    --sidebar-bg:#1a1a2e;
+    --sidebar-w:250px;
+    --radius:14px;
+    --shadow:0 2px 16px rgba(0,0,0,.08);
+  }
+  *,*::before,*::after{box-sizing:border-box;margin:0;padding:0;}
+  body{background:#f3f4f8;font-family:'Segoe UI',system-ui,-apple-system,sans-serif;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+
+  /* ── SIDEBAR ── */
+  .sidebar{
+    position:fixed;top:0;left:0;width:var(--sidebar-w);height:100vh;
+    background:var(--sidebar-bg);color:#fff;
+    display:flex;flex-direction:column;z-index:1040;
+    transition:transform .28s cubic-bezier(.4,0,.2,1);
+    overflow-y:auto;overflow-x:hidden;-webkit-overflow-scrolling:touch;
+  }
+  .sidebar-brand{
+    padding:20px 18px 16px;font-size:1.2rem;font-weight:800;
+    color:var(--accent);border-bottom:1px solid #2a2a4a;
+    letter-spacing:.4px;flex-shrink:0;
+    display:flex;align-items:center;justify-content:space-between;
+  }
+  .sidebar-brand small{display:block;font-size:.65rem;color:#666;font-weight:400;letter-spacing:1px;text-transform:uppercase;margin-top:2px;}
+  .sidebar-close{display:none;background:none;border:none;color:#666;font-size:1.2rem;cursor:pointer;padding:4px;border-radius:6px;}
+  .sidebar-close:hover{color:#fff;background:rgba(255,255,255,.1);}
+  .sidebar nav{flex:1;padding:8px 0;}
+  .nav-section{padding:12px 18px 4px;font-size:.6rem;text-transform:uppercase;letter-spacing:1.5px;color:#555;margin-top:4px;}
+  .sidebar .nav-link{
+    color:#9a9ab8;padding:9px 16px;display:flex;align-items:center;
+    gap:10px;border-radius:10px;margin:1px 8px;font-size:.88rem;
+    transition:background .15s,color .15s;text-decoration:none;white-space:nowrap;
+  }
+  .sidebar .nav-link:hover,.sidebar .nav-link.active{background:var(--accent);color:#fff;}
+  .sidebar-footer{padding:12px;border-top:1px solid #2a2a4a;flex-shrink:0;}
+
+  /* ── OVERLAY (mobile) ── */
+  .sidebar-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.55);z-index:1039;}
+  .sidebar-overlay.show{display:block;}
+
+  /* ── MAIN WRAP ── */
+  .main-wrap{margin-left:var(--sidebar-w);min-height:100vh;transition:margin-left .28s cubic-bezier(.4,0,.2,1);}
+
+  /* ── TOPBAR ── */
+  .topbar{
+    background:#fff;padding:0 clamp(14px,3vw,24px);height:64px;
+    display:flex;align-items:center;justify-content:space-between;
+    box-shadow:0 1px 12px rgba(0,0,0,.06);position:sticky;top:0;z-index:100;gap:12px;
+  }
+  .topbar-left{display:flex;align-items:center;gap:10px;min-width:0;}
+  .topbar-right{display:flex;align-items:center;gap:clamp(6px,1.5vw,14px);flex-shrink:0;}
+  .topbar h5{font-size:clamp(.88rem,2.5vw,1.05rem);font-weight:700;margin:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:clamp(100px,35vw,400px);}
+
+  .hamburger{display:none;background:none;border:none;color:#333;font-size:1.35rem;cursor:pointer;padding:6px 8px;border-radius:8px;flex-shrink:0;}
+  .hamburger:hover{background:#f0eeff;color:var(--accent);}
+
+  /* ── CONTENT ── */
+  .content-area{padding:clamp(14px,3vw,28px);}
+
+  /* ── COMPONENTS ── */
+  .card{border:none;border-radius:var(--radius);box-shadow:var(--shadow);}
+  .stat-card{border-radius:var(--radius);padding:clamp(14px,3vw,22px) clamp(16px,3vw,24px);color:#fff;}
+  .badge-role{font-size:.72rem;padding:4px 10px;border-radius:20px;}
+  .btn-accent{background:var(--accent);color:#fff;border:none;}
+  .btn-accent:hover{background:var(--accent-dark);color:#fff;}
+  .grade-badge{background:#e8e6ff;color:var(--accent);font-weight:700;padding:3px 10px;border-radius:8px;font-size:.78rem;white-space:nowrap;}
+  .subject-tag{background:#fff3cd;color:#856404;padding:2px 8px;border-radius:6px;font-size:.78rem;}
+
+  /* ── BELL ── */
+  .bell-btn{position:relative;background:none;border:none;color:#555;font-size:1.25rem;cursor:pointer;padding:6px 8px;border-radius:8px;transition:background .15s;flex-shrink:0;}
+  .bell-btn:hover{background:#f0eeff;color:var(--accent);}
+  .bell-badge{position:absolute;top:-2px;right:-2px;background:#e84393;color:#fff;border-radius:50%;min-width:17px;height:17px;font-size:9px;font-weight:700;display:flex;align-items:center;justify-content:center;padding:0 3px;}
+
+  /* ── USER ── */
+  .user-info{display:flex;align-items:center;gap:8px;text-decoration:none;}
+  .user-name{font-size:.82rem;font-weight:600;color:#444;display:none;}
+  @media(min-width:480px){.user-name{display:block;max-width:100px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}}
+  @media(min-width:768px){.user-name{max-width:140px;}}
+
+  /* ── ANNOUNCEMENT PANEL ── */
+  .ann-overlay{position:fixed;inset:0;background:rgba(0,0,0,.4);z-index:1050;display:none;}
+  .ann-overlay.open{display:block;}
+  .ann-panel{
+    position:fixed;top:0;right:-100vw;width:min(380px,100vw);height:100vh;
+    background:#fff;box-shadow:-4px 0 32px rgba(0,0,0,.12);
+    z-index:1051;transition:right .3s ease;display:flex;flex-direction:column;
+    -webkit-overflow-scrolling:touch;
+  }
+  .ann-panel.open{right:0;}
+  .ann-panel-head{padding:16px 18px;border-bottom:1px solid #eee;display:flex;justify-content:space-between;align-items:center;flex-shrink:0;}
+  .ann-panel-head h6{margin:0;font-weight:700;font-size:.95rem;}
+  .ann-list{flex:1;overflow-y:auto;-webkit-overflow-scrolling:touch;}
+  .ann-item{padding:13px 18px;border-bottom:1px solid #f5f5f5;cursor:pointer;transition:background .15s;position:relative;}
+  .ann-item:hover{background:#f9f8ff;}
+  .ann-item.unread{border-left:3px solid var(--accent);}
+  .ann-item.read{border-left:3px solid transparent;opacity:.75;}
+  .ann-item .ann-title{font-weight:600;font-size:.88rem;margin-bottom:3px;}
+  .ann-item .ann-meta{font-size:.72rem;color:#999;}
+  .ann-item .ann-dot{width:7px;height:7px;background:var(--accent);border-radius:50%;position:absolute;top:16px;right:14px;}
+  .ann-filters{padding:8px 16px;border-bottom:1px solid #eee;display:flex;gap:5px;flex-wrap:wrap;flex-shrink:0;}
+  .ann-filters button{font-size:10px;padding:3px 9px;border:1px solid #ddd;border-radius:20px;background:#fff;cursor:pointer;}
+  .ann-filters button.active{background:var(--accent);color:#fff;border-color:var(--accent);}
+  .ann-modal .type-badge{font-size:11px;padding:3px 10px;border-radius:20px;font-weight:600;}
+  .ann-modal .ann-body{font-size:15px;line-height:1.75;white-space:pre-wrap;}
+  .ann-modal .meta-row{font-size:12px;color:#888;display:flex;flex-wrap:wrap;gap:10px;margin:10px 0;}
+
+  /* ── TAB OVERLAY ── */
+  .tab-warn-overlay{position:fixed;inset:0;background:rgba(220,53,69,.96);z-index:99999;display:none;align-items:center;justify-content:center;flex-direction:column;color:#fff;text-align:center;padding:24px;}
+  .tab-warn-overlay.show{display:flex;}
+  .tab-warn-overlay h2{font-size:clamp(1.4rem,4vw,2rem);font-weight:700;margin-bottom:8px;}
+  .tab-warn-overlay p{font-size:clamp(.9rem,2vw,1.1rem);opacity:.9;max-width:480px;}
+  .tab-warn-overlay .count-badge{font-size:clamp(2rem,8vw,3rem);font-weight:800;margin:12px;}
+
+  /* ══════════════════════════════════════════════════════
+     RESPONSIVE
+  ══════════════════════════════════════════════════════ */
+  /* Tablet & mobile: sidebar becomes offcanvas */
+  @media(max-width:991.98px){
+    .sidebar{transform:translateX(-100%);box-shadow:4px 0 24px rgba(0,0,0,.18);}
+    .sidebar.show{transform:translateX(0);}
+    .sidebar-close{display:block;}
+    .main-wrap{margin-left:0;}
+    .hamburger{display:flex;align-items:center;justify-content:center;}
+  }
+  /* Mobile */
+  @media(max-width:575.98px){
+    .topbar{padding:0 12px;height:56px;}
+    .content-area{padding:12px;}
+    .badge-role{display:none;}
+    .grade-badge{font-size:.7rem;padding:2px 7px;}
+    .ann-panel{width:100vw;}
+  }
+  /* Large desktop */
+  @media(min-width:1400px){
+    :root{--sidebar-w:270px;}
+    .content-area{padding:32px 36px;}
+  }
+
+  /* ══════════════════════════════════════════════════════
+     GLOBAL RESPONSIVE — all breakpoints
+  ══════════════════════════════════════════════════════ */
+
+  /* touch targets */
+  .btn, button, [role="button"]{ min-height:38px; }
+  @media(max-width:575.98px){
+    .btn{ min-height:42px; font-size:.88rem; }
+  }
+
+  /* Fluid stat cards */
+  .stat-card .fs-2{ font-size:clamp(1.4rem,4vw,2rem)!important; }
+
+  /* Tables always scrollable */
+  .table-responsive{ -webkit-overflow-scrolling:touch; }
+
+  /* Cards full-width on xs */
+  @media(max-width:575.98px){
+    .card.p-4{ padding:16px!important; }
+    .card.p-3{ padding:12px!important; }
+  }
+
+  /* Row gutters tighter on mobile */
+  @media(max-width:575.98px){
+    .row.g-4{ --bs-gutter-x:.75rem; --bs-gutter-y:.75rem; }
+    .row.g-3{ --bs-gutter-x:.6rem; --bs-gutter-y:.6rem; }
+  }
+
+  /* Stacked buttons on mobile */
+  @media(max-width:400px){
+    .d-flex.gap-1, .d-flex.gap-2{
+      flex-wrap:wrap!important;
+    }
+    .btn-sm{ padding:6px 10px; }
+  }
+
+  /* Profile tabs scroll on mobile */
+  .nav-tabs{ flex-wrap:nowrap; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+  .nav-tabs .nav-link{ white-space:nowrap; }
+
+  /* Room card buttons wrap cleanly */
+  .room-actions{ display:flex; flex-wrap:wrap; gap:6px; }
+
+  /* Prevent overflow on long words */
+  td, th, p, li, .card-text{ word-break:break-word; overflow-wrap:break-word; }
+
+  /* Stat grid 2x2 on mobile, 4x1 on desktop */
+  @media(max-width:400px){
+    .col-6.col-md-3{ width:50%!important; }
+  }
+
+  /* Forms full width on mobile */
+  @media(max-width:575.98px){
+    .form-control, .form-select{ font-size:16px!important; } /* prevent iOS zoom */
+    input[type="text"], input[type="email"],
+    input[type="password"], textarea, select{
+      font-size:16px!important;
+    }
+  }
+
+  /* Images responsive */
+  img{ max-width:100%; height:auto; }
+
+  /* Announcement panel full-width on small */
+  @media(max-width:420px){
+    .ann-panel{ width:100vw!important; border-radius:0; }
+  }
+
+  /* Modal full-screen on tiny screens */
+  @media(max-width:575.98px){
+    .modal-dialog{ margin:.4rem; }
+    .modal-dialog-scrollable .modal-content{ max-height:calc(100vh - .8rem); }
+  }
+
+  /* Topbar page title trim on mobile */
+  @media(max-width:380px){
+    .topbar h5{ font-size:.8rem; max-width:150px; }
+  }
+
+  /* Print */
+  @media print{
+    .sidebar,.topbar,.hamburger,.sidebar-overlay,
+    .ann-panel,.ann-overlay,.bell-btn,.tab-warn-overlay{display:none!important;}
+    .main-wrap{margin-left:0!important;}
+    .content-area{padding:0;}
+  }
+  </style>
+  {% block extra_css %}{% endblock %}
+</head>
+<body>
+{% if user.is_authenticated %}
+
+{% if user.role == 'student' %}
+<div class="tab-warn-overlay" id="tabWarnOverlay">
+  <i class="bi bi-eye-slash" style="font-size:clamp(2.5rem,8vw,4rem);margin-bottom:8px;"></i>
+  <h2>Tab Switch Detected!</h2>
+  <div class="count-badge" id="tabViolationCount">1</div>
+  <p>Switching tabs during a quiz or activity is not allowed.<br>This violation has been logged and reported to your teacher.</p>
+  <button class="btn btn-light mt-3 fw-bold" onclick="dismissTabWarn()">I Understand — Return to Page</button>
+</div>
+{% endif %}
+
+<!-- OVERLAY -->
+<div class="sidebar-overlay" id="sidebarOverlay" onclick="closeSidebar()"></div>
+
+<!-- SIDEBAR -->
+<aside class="sidebar" id="sidebar">
+  <div class="sidebar-brand">
+    <div><i class="bi bi-mortarboard-fill me-1"></i> EduLMS<small>High School Learning</small></div>
+    <button class="sidebar-close" onclick="closeSidebar()" aria-label="Close menu"><i class="bi bi-x-lg"></i></button>
+  </div>
+  <nav class="mt-1">
+    {% if user.role == 'teacher' %}
+      <div class="nav-section">Overview</div>
+      <a class="nav-link" href="/teacher/dashboard/"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <div class="nav-section">Rooms</div>
+      <a class="nav-link" href="/teacher/room/create/"><i class="bi bi-plus-circle"></i> Create Room</a>
+      <div class="nav-section">Students</div>
+      <a class="nav-link" href="/teacher/students/pending/">
+        <i class="bi bi-person-check"></i> Approvals
+        {% if pending_approvals %}<span class="badge bg-warning text-dark ms-auto">{{ pending_approvals }}</span>{% endif %}
+      </a>
+      <div class="nav-section">Communication</div>
+      <a class="nav-link" href="/teacher/announcements/"><i class="bi bi-megaphone"></i> Announcements</a>
+      <div class="nav-section">Live Classes</div>
+      <a class="nav-link" href="#" onclick="alert('Go to a room and click Live Class')"><i class="bi bi-camera-video"></i> Jitsi Meet</a>
+      <a class="nav-link" href="/accounts/teacher-profile/"><i class="bi bi-person-circle"></i> My Profile</a>
+      <div class="nav-section">System</div>
+      <a class="nav-link" href="/system/errors/"><i class="bi bi-bug"></i> Error Dashboard</a>
+    {% elif user.role == 'student' %}
+      <div class="nav-section">My Learning</div>
+      <a class="nav-link" href="/student/dashboard/"><i class="bi bi-speedometer2"></i> Dashboard</a>
+      <a class="nav-link" href="/student/grades/"><i class="bi bi-award"></i> My Grades</a>
+      <a class="nav-link" href="/student/announcements/"><i class="bi bi-megaphone"></i> Announcements</a>
+      <a class="nav-link" href="/accounts/profile/"><i class="bi bi-person-circle"></i> My Profile</a>
+      <div class="nav-section">Info</div>
+      <div class="nav-link" style="cursor:default;pointer-events:none;"><i class="bi bi-mortarboard"></i> Grade {{ user.grade_level }}</div>
+    {% else %}
+      <div class="nav-section">Administration</div>
+      <a class="nav-link" href="/superadmin/"><i class="bi bi-shield-check"></i> Admin Portal</a>
+    {% endif %}
+  </nav>
+  <div class="sidebar-footer">
+    <a class="nav-link text-danger" href="/accounts/logout/"><i class="bi bi-box-arrow-left"></i> Logout</a>
+  </div>
+</aside>
+
+<!-- MAIN WRAP -->
+<div class="main-wrap" id="mainWrap">
+
+  <!-- TOPBAR -->
+  <header class="topbar">
+    <div class="topbar-left">
+      <button class="hamburger" id="hamburgerBtn" onclick="openSidebar()" aria-label="Open menu">
+        <i class="bi bi-list"></i>
+      </button>
+      <h5>{% block page_title %}Dashboard{% endblock %}</h5>
+    </div>
+    <div class="topbar-right">
+      <button class="bell-btn" onclick="toggleAnnPanel()" aria-label="Notifications">
+        <i class="bi bi-bell"></i>
+        {% if unread_count %}<span class="bell-badge">{{ unread_count }}</span>{% endif %}
+      </button>
+      <span class="badge badge-role bg-primary">{{ user.role|title }}</span>
+      {% if user.role == 'student' %}<span class="grade-badge">Gr.{{ user.grade_level }}</span>{% endif %}
+      <a href="{% if user.role == 'student' %}/accounts/profile/{% else %}/accounts/teacher-profile/{% endif %}" class="user-info" aria-label="My profile">
+        {% if user.profile_image %}
+          <img src="{{ user.profile_image.url }}" alt="Profile" style="width:32px;height:32px;border-radius:50%;object-fit:cover;border:2px solid var(--accent);">
+        {% else %}
+          <div style="width:32px;height:32px;border-radius:50%;background:var(--accent);display:flex;align-items:center;justify-content:center;font-size:.85rem;font-weight:700;color:#fff;flex-shrink:0;">{{ user.first_name|first|default:user.username|first|upper }}</div>
+        {% endif %}
+        <span class="user-name">{{ user.get_full_name|default:user.username }}</span>
+      </a>
+    </div>
+  </header>
+
+  <!-- MESSAGES -->
+  {% if messages %}
+    <div class="content-area pb-0">
+      {% for msg in messages %}
+        <div class="alert alert-{{ msg.tags|default:'info' }} alert-dismissible fade show rounded-3">
+          {{ msg }}<button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+      {% endfor %}
+    </div>
+  {% endif %}
+
+  <!-- PAGE CONTENT -->
+  <main class="content-area">{% block content %}{% endblock %}</main>
+
+</div><!-- /main-wrap -->
+
+<!-- ANNOUNCEMENT PANEL -->
+<div class="ann-overlay" id="annOverlay" onclick="toggleAnnPanel()"></div>
+<aside class="ann-panel" id="annPanel">
+  <div class="ann-panel-head">
+    <h6><i class="bi bi-bell me-2"></i>Announcements
+      {% if unread_count %}<span class="badge bg-danger ms-1">{{ unread_count }} new</span>{% endif %}
+    </h6>
+    <button class="btn-close" onclick="toggleAnnPanel()"></button>
+  </div>
+  <div class="ann-filters" id="annFilters">
+    <button class="active" onclick="filterAnn('all',this)">All</button>
+    <button onclick="filterAnn('notice',this)">Notice</button>
+    <button onclick="filterAnn('event',this)">Event</button>
+    <button onclick="filterAnn('exam',this)">Exam</button>
+    <button onclick="filterAnn('urgent',this)">Urgent</button>
+    <button onclick="filterAnn('unread',this)">Unread</button>
+  </div>
+  <div class="ann-list" id="annList">
+    <div class="text-center text-muted py-4"><i class="bi bi-hourglass"></i> Loading…</div>
+  </div>
+</aside>
+
+<!-- Announcement Modal -->
+<div class="modal fade ann-modal" id="annModal" tabindex="-1">
+  <div class="modal-dialog modal-dialog-centered modal-lg modal-dialog-scrollable">
+    <div class="modal-content border-0 rounded-4">
+      <div class="modal-header pb-0">
+        <div class="flex-grow-1">
+          <div class="d-flex gap-2 mb-2 flex-wrap" id="modalBadges"></div>
+          <h4 class="modal-title fw-bold" id="annModalTitle"></h4>
+          <div class="meta-row" id="modalMeta"></div>
+        </div>
+        <button type="button" class="btn-close ms-2" data-bs-dismiss="modal"></button>
+      </div>
+      <div class="modal-body pt-2">
+        <div class="ann-body" id="modalBody"></div>
+        <div id="modalAttachment" class="mt-3"></div>
+        <div id="modalLink" class="mt-2"></div>
+      </div>
+      <div class="modal-footer border-0 pt-0 flex-wrap gap-2">
+        <button class="btn btn-outline-secondary btn-sm" id="markReadBtn" onclick="markCurrentRead()">
+          <i class="bi bi-check2-circle me-1"></i> Mark as Read
+        </button>
+        <button class="btn btn-secondary btn-sm" data-bs-dismiss="modal">Close</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+{% else %}
+  {% block auth_content %}{% endblock %}
+{% endif %}
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+<script>
+/* ── SIDEBAR ── */
+function openSidebar(){
+  document.getElementById('sidebar').classList.add('show');
+  document.getElementById('sidebarOverlay').classList.add('show');
+  document.body.style.overflow='hidden';
+}
+function closeSidebar(){
+  document.getElementById('sidebar').classList.remove('show');
+  document.getElementById('sidebarOverlay').classList.remove('show');
+  document.body.style.overflow='';
+}
+document.addEventListener('keydown',function(e){if(e.key==='Escape'){closeSidebar();}});
+document.querySelectorAll('.sidebar .nav-link').forEach(function(l){
+  l.addEventListener('click',function(){if(window.innerWidth<992)closeSidebar();});
+});
+// Active link
+(function(){
+  var p=window.location.pathname;
+  document.querySelectorAll('.sidebar .nav-link[href]').forEach(function(a){
+    if(p.startsWith(a.getAttribute('href')))a.classList.add('active');
+  });
+})();
+
+/* ── HELPERS ── */
+function getCookie(n){var v=document.cookie.match('(^|;) ?'+n+'=([^;]*)(;|$)');return v?v[2]:null;}
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+
+/* ── ANNOUNCEMENTS ── */
+var allAnns=[],currentAnnId=null,unreadIds={{ unread_ann_ids|safe }};
+function toggleAnnPanel(){
+  var p=document.getElementById('annPanel'),o=document.getElementById('annOverlay');
+  var open=p.classList.contains('open');
+  p.classList.toggle('open',!open);o.classList.toggle('open',!open);
+  document.body.style.overflow=(!open)?'hidden':'';
+  if(!open&&!allAnns.length)loadAnnouncements();
+}
+function loadAnnouncements(){
+  fetch('/api/announcements/')
+    .then(function(r){return r.json();})
+    .then(function(d){
+      allAnns=d.announcements||[];renderAnnList(allAnns);
+      var fu=allAnns.find(function(a){return unreadIds.includes(a.id);});
+      if(fu&&!sessionStorage.getItem('annPopupShown')){
+        sessionStorage.setItem('annPopupShown','1');
+        setTimeout(function(){openAnnModal(fu);},800);
+      }
+    }).catch(function(){
+      document.getElementById('annList').innerHTML='<div class="text-center text-muted py-4">Could not load.</div>';
+    });
+}
+function renderAnnList(anns){
+  var el=document.getElementById('annList');
+  if(!anns.length){el.innerHTML='<div class="text-center text-muted py-5"><i class="bi bi-megaphone fs-2"></i><br>No announcements.</div>';return;}
+  var c={notice:'#6c63ff',event:'#00b894',exam:'#fdcb6e',holiday:'#00cec9',urgent:'#e84393'};
+  el.innerHTML=anns.map(function(a){
+    var u=unreadIds.includes(a.id);
+    return '<div class="ann-item '+(u?'unread':'read')+'" onclick="openAnnById('+a.id+')" data-type="'+a.ann_type+'">'
+      +(u?'<span class="ann-dot"></span>':'')
+      +'<div class="ann-title">'+escHtml(a.title)+'</div>'
+      +'<div class="ann-meta"><span style="color:'+(c[a.ann_type]||'#888')+';font-size:10px;font-weight:600;text-transform:uppercase;">'+a.ann_type+'</span> &bull; '+escHtml(a.author)+' &bull; '+escHtml(a.created_at)+(a.pinned?' 📌':'')+'</div>'
+      +'</div>';
+  }).join('');
+}
+function filterAnn(t,btn){
+  document.querySelectorAll('#annFilters button').forEach(function(b){b.classList.remove('active');});
+  btn.classList.add('active');
+  if(t==='all')return renderAnnList(allAnns);
+  if(t==='unread')return renderAnnList(allAnns.filter(function(a){return unreadIds.includes(a.id);}));
+  renderAnnList(allAnns.filter(function(a){return a.ann_type===t;}));
+}
+function openAnnById(id){var a=allAnns.find(function(x){return x.id===id;});if(a)openAnnModal(a);}
+var tc={notice:'primary',event:'success',exam:'warning',holiday:'info',urgent:'danger'};
+function openAnnModal(a){
+  currentAnnId=a.id;
+  document.getElementById('annModalTitle').textContent=a.title;
+  document.getElementById('modalBadges').innerHTML=
+    '<span class="type-badge badge bg-'+(tc[a.ann_type]||'secondary')+'">'+a.ann_type.toUpperCase()+'</span>'
+    +(a.pinned?'<span class="badge bg-dark">📌 Pinned</span>':'')
+    +(unreadIds.includes(a.id)?'<span class="badge bg-danger">New</span>':'<span class="badge bg-light text-muted">Read</span>');
+  document.getElementById('modalMeta').innerHTML=
+    '<span><i class="bi bi-person me-1"></i>'+escHtml(a.author)+'</span>'
+    +'<span><i class="bi bi-calendar me-1"></i>'+escHtml(a.created_at)+'</span>'
+    +'<span><i class="bi bi-people me-1"></i>'+escHtml(a.audience)+'</span>';
+  document.getElementById('modalBody').textContent=a.content;
+  document.getElementById('modalAttachment').innerHTML=a.attachment_url?'<a href="'+a.attachment_url+'" target="_blank" class="btn btn-outline-secondary btn-sm"><i class="bi bi-download me-1"></i>Attachment</a>':'';
+  document.getElementById('modalLink').innerHTML=a.link?'<a href="'+a.link+'" target="_blank" rel="noopener" class="btn btn-outline-info btn-sm"><i class="bi bi-link-45deg me-1"></i>Open Link</a>':'';
+  document.getElementById('markReadBtn').style.display=unreadIds.includes(a.id)?'':'none';
+  new bootstrap.Modal(document.getElementById('annModal')).show();
+}
+function markCurrentRead(){
+  if(!currentAnnId)return;
+  fetch('/student/announcement/'+currentAnnId+'/read/',{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken'),'Content-Type':'application/json'}})
+    .then(function(){
+      var i=unreadIds.indexOf(currentAnnId);if(i>-1)unreadIds.splice(i,1);
+      var b=document.querySelector('.bell-badge');if(b){var n=unreadIds.length;if(n>0)b.textContent=n;else b.remove();}
+      renderAnnList(allAnns);document.getElementById('markReadBtn').style.display='none';
+    });
+}
+{% if user.is_authenticated %}document.addEventListener('DOMContentLoaded',function(){loadAnnouncements();});{% endif %}
+
+/* ── TAB DETECTION (students only) ── */
+{% if user.is_authenticated and user.role == 'student' %}
+var tabV=0,isQuiz=location.pathname.indexOf('/take/')!==-1,isStudent=location.pathname.indexOf('/student/')===0;
+var twEl=document.getElementById('tabWarnOverlay'),tcEl=document.getElementById('tabViolationCount');
+function dismissTabWarn(){if(twEl)twEl.classList.remove('show');}
+function handleTab(){
+  tabV++;if(tcEl)tcEl.textContent=tabV;if(twEl)twEl.classList.add('show');
+  var q=document.querySelector('[data-quiz-id]');
+  fetch('/student/log-tab-violation/',{method:'POST',headers:{'X-CSRFToken':getCookie('csrftoken'),'Content-Type':'application/json'},body:JSON.stringify({url:location.pathname,quiz_id:q?q.dataset.quizId:null})}).catch(function(){});
+}
+if(isStudent)document.addEventListener('visibilitychange',function(){if(document.hidden)handleTab();});
+if(isQuiz){
+  window.addEventListener('blur',function(){handleTab();});
+  document.addEventListener('contextmenu',function(e){e.preventDefault();});
+  document.addEventListener('keydown',function(e){
+    if(e.key==='F12'||(e.ctrlKey&&['u','s','p','i'].includes(e.key.toLowerCase()))||(e.ctrlKey&&e.shiftKey&&['i','j','c'].includes(e.key.toLowerCase()))){e.preventDefault();e.stopPropagation();}
+  });
+}
+{% endif %}
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

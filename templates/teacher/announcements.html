@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block content %}
+<div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2">
+  <!-- Filter pills -->
+  <div class="d-flex gap-2 flex-wrap">
+    {% for t,label in type_choices %}
+    <a href="?type={{ t }}" class="btn btn-sm {% if ann_type == t %}btn-accent{% else %}btn-outline-secondary{% endif %}">
+      {{ label }}
+    </a>
+    {% endfor %}
+    {% if ann_type %}<a href="?" class="btn btn-sm btn-outline-secondary">Clear</a>{% endif %}
+  </div>
+  <a href="/teacher/announcements/create/" class="btn btn-accent">
+    <i class="bi bi-megaphone me-1"></i> New Announcement
+  </a>
+</div>
+
+{% if announcements %}
+  {% for ann in announcements %}
+  <div class="card p-4 mb-3 {% if ann.pinned %}border-start border-4 border-warning{% endif %}">
+    <div class="d-flex justify-content-between align-items-start gap-3">
+      <div class="flex-grow-1">
+        <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+          {% if ann.pinned %}<span class="badge bg-warning text-dark"><i class="bi bi-pin-fill"></i> Pinned</span>{% endif %}
+          <span class="badge bg-{{ ann.type_color }}">{{ ann.ann_type|upper }}</span>
+          <span class="badge bg-secondary">{{ ann.audience_label }}</span>
+          {% if ann.send_email %}<span class="badge bg-info text-dark"><i class="bi bi-envelope me-1"></i>Emailed</span>{% endif %}
+          {% if ann.read_count %}<span class="badge bg-light text-muted"><i class="bi bi-eye me-1"></i>{{ ann.read_count }} read</span>{% endif %}
+          {% if not ann.is_published %}<span class="badge bg-dark">⏰ Scheduled</span>{% endif %}
+        </div>
+        <h5 class="fw-bold mb-1">{{ ann.title }}</h5>
+        <p class="text-muted small mb-2">
+          <i class="bi bi-person me-1"></i>{{ ann.author.get_full_name|default:ann.author.username }}
+          &bull; {{ ann.created_at|date:"M d, Y H:i" }}
+          {% if ann.scheduled_at %}&bull; <i class="bi bi-clock me-1"></i>Scheduled: {{ ann.scheduled_at|date:"M d, Y H:i" }}{% endif %}
+        </p>
+        <p class="mb-0">{{ ann.content|linebreaks|truncatechars:200 }}</p>
+        {% if ann.attachment %}
+          <a href="{{ ann.attachment.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">
+            <i class="bi bi-download me-1"></i>Attachment
+          </a>
+        {% endif %}
+        {% if ann.link %}
+          <a href="{{ ann.link }}" target="_blank" class="btn btn-sm btn-outline-info mt-2 ms-1">
+            <i class="bi bi-link-45deg me-1"></i>Link
+          </a>
+        {% endif %}
+      </div>
+      <div class="d-flex flex-column gap-1">
+        <a href="/teacher/announcements/{{ ann.pk }}/edit/" class="btn btn-sm btn-outline-primary">Edit</a>
+        <form method="post" action="/teacher/announcements/{{ ann.pk }}/delete/" onsubmit="return confirm('Delete this announcement?')">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger w-100">Delete</button>
+        </form>
+      </div>
+    </div>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card p-5 text-center text-muted">
+    <i class="bi bi-megaphone fs-1 mb-2"></i>
+    <p class="mb-0">No announcements yet.</p>
+  </div>
+{% endif %}
+{% endblock %}

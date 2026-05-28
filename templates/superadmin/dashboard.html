@@ -1,0 +1,73 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Dashboard{% endblock %}
+{% block page_title %}System Dashboard{% endblock %}
+{% block content %}
+
+<!-- Stats grid -->
+<div class="row g-3 mb-4">
+  {% for label,num,color,icon in stats_grid %}{% endfor %}
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#6c63ff;">{{ total_users }}</div><div class="lbl">Total Users</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#0ea5e9;">{{ total_teachers }}</div><div class="lbl">Teachers</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#10b981;">{{ total_students }}</div><div class="lbl">Students</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#f59e0b;">{{ pending_teachers|add:pending_students }}</div><div class="lbl">Pending Approval</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#8b5cf6;">{{ total_rooms }}</div><div class="lbl">Rooms</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#ec4899;">{{ total_assignments }}</div><div class="lbl">Assignments</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#14b8a6;">{{ total_submissions }}</div><div class="lbl">Submissions</div></div></div>
+  <div class="col-6 col-md-3"><div class="stat-tile"><div class="num" style="color:#ef4444;">{{ recent_errors }}</div><div class="lbl">Active Errors</div></div></div>
+</div>
+
+<!-- Pending approvals banner -->
+{% if pending_teachers or pending_students %}
+<div class="alert d-flex justify-content-between align-items-center mb-4" style="background:#fff7ed;border:1px solid #fed7aa;border-radius:12px;">
+  <div>
+    <i class="bi bi-person-exclamation me-2 text-warning"></i>
+    {% if pending_teachers %}<strong>{{ pending_teachers }} teacher(s)</strong> {% endif %}
+    {% if pending_teachers and pending_students %}and {% endif %}
+    {% if pending_students %}<strong>{{ pending_students }} student(s)</strong> {% endif %}
+    awaiting account approval.
+  </div>
+  <a href="/superadmin/users/?status=pending" class="btn btn-sa btn-sm">Review Now</a>
+</div>
+{% endif %}
+
+<div class="row g-4">
+  <!-- This week -->
+  <div class="col-md-4">
+    <div class="card p-4 h-100">
+      <h6 class="fw-bold mb-3"><i class="bi bi-graph-up me-1 text-primary"></i>This Week</h6>
+      <div class="d-flex justify-content-between mb-3">
+        <span class="text-muted small">New Registrations</span>
+        <strong>{{ new_users_week }}</strong>
+      </div>
+      <div class="d-flex justify-content-between">
+        <span class="text-muted small">Submissions</span>
+        <strong>{{ new_subs_week }}</strong>
+      </div>
+    </div>
+  </div>
+
+  <!-- Recent users -->
+  <div class="col-md-8">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-people me-1"></i>Recent Users</h6>
+        <a href="/superadmin/users/" class="btn btn-sa btn-sm">View All</a>
+      </div>
+      <table class="table table-sm table-hover">
+        <thead><tr><th>Name</th><th>Role</th><th>Grade</th><th>Status</th><th>Joined</th></tr></thead>
+        <tbody>
+          {% for u in recent_users %}
+          <tr>
+            <td><strong>{{ u.get_full_name|default:u.username }}</strong><br><small class="text-muted">@{{ u.username }}</small></td>
+            <td><span class="badge {% if u.role == 'teacher' %}bg-primary{% else %}bg-success{% endif %}">{{ u.role }}</span></td>
+            <td>{% if u.grade_level %}Grade {{ u.grade_level }}{% else %}—{% endif %}</td>
+            <td>{% if u.is_approved %}<span class="badge bg-success">Active</span>{% else %}<span class="badge bg-warning text-dark">Pending</span>{% endif %}</td>
+            <td class="text-muted small">{{ u.date_joined|date:"M d" }}</td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </div>
+</div>
+{% endblock %}

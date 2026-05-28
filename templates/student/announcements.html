@@ -1,0 +1,30 @@
+{% extends 'base.html' %}
+{% block title %}Announcements{% endblock %}
+{% block page_title %}Announcements{% endblock %}
+{% block content %}
+{% if announcements %}
+  {% for ann in announcements %}
+  <div class="card p-4 mb-3 ann-clickable {% if ann.pinned %}border-start border-4 border-warning{% endif %}"
+       style="cursor:pointer"
+       onclick="openAnnById({{ ann.pk }})"
+       data-ann-id="{{ ann.pk }}">
+    <div class="d-flex align-items-center gap-2 mb-2 flex-wrap">
+      {% if ann.pinned %}<span class="badge bg-warning text-dark"><i class="bi bi-pin-fill"></i> Pinned</span>{% endif %}
+      <span class="badge bg-{{ ann.type_color }}">{{ ann.ann_type|upper }}</span>
+      {% if ann.pk in unread_ann_ids %}<span class="badge bg-danger">New</span>{% endif %}
+    </div>
+    <h5 class="fw-bold mb-1">{{ ann.title }}</h5>
+    <p class="text-muted small mb-1">
+      <i class="bi bi-person me-1"></i>{{ ann.author.get_full_name|default:ann.author.username }}
+      &bull; {{ ann.created_at|date:"M d, Y" }}
+    </p>
+    <p class="mb-0 text-muted small">{{ ann.content|truncatechars:120 }}</p>
+  </div>
+  {% endfor %}
+{% else %}
+  <div class="card p-5 text-center text-muted">
+    <i class="bi bi-megaphone fs-1 mb-2"></i>
+    <p class="mb-0">No announcements yet.</p>
+  </div>
+{% endif %}
+{% endblock %}

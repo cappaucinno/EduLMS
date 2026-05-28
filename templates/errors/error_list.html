@@ -1,0 +1,110 @@
+{% extends 'base.html' %}
+{% block title %}Error Dashboard{% endblock %}
+{% block page_title %}🛡️ Error Detection Dashboard{% endblock %}
+{% block content %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#e17055,#d63031)">
+      <div class="fs-2 fw-bold">{{ errors|length }}</div>
+      <div class="small">Active Errors</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#00b894,#00cec9)">
+      <div class="fs-2 fw-bold">{{ resolved_count }}</div>
+      <div class="small">Resolved</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c63ff,#a29bfe)">
+      <div class="fs-2 fw-bold">{{ total }}</div>
+      <div class="small">Total Logged</div>
+    </div>
+  </div>
+  <div class="col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">
+      <div class="fs-2 fw-bold">{{ type_counts|length }}</div>
+      <div class="small">Error Types</div>
+    </div>
+  </div>
+</div>
+
+<div class="row g-4">
+  <!-- Error List -->
+  <div class="col-lg-8">
+    <div class="card p-4">
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h5 class="fw-bold mb-0"><i class="bi bi-bug me-2 text-danger"></i>Active Errors</h5>
+        {% if resolved_count %}
+        <form method="post" action="/system/errors/clear-resolved/">
+          {% csrf_token %}
+          <button class="btn btn-sm btn-outline-secondary"
+            onclick="return confirm('Delete all resolved errors?')">
+            Clear Resolved ({{ resolved_count }})
+          </button>
+        </form>
+        {% endif %}
+      </div>
+      {% if errors %}
+      <div class="table-responsive">
+        <table class="table table-hover align-middle">
+          <thead class="table-light">
+            <tr><th>Time</th><th>Type</th><th>Message</th><th>URL</th><th>User</th><th></th></tr>
+          </thead>
+          <tbody>
+            {% for e in errors %}
+            <tr>
+              <td class="small text-muted text-nowrap">{{ e.created_at|date:"M d H:i" }}</td>
+              <td><span class="badge bg-danger">{{ e.error_type }}</span></td>
+              <td class="small">{{ e.message|truncatechars:60 }}</td>
+              <td class="small text-muted">{{ e.url|truncatechars:30 }}</td>
+              <td class="small">
+                {% if e.user %}{{ e.user.username }}{% else %}<span class="text-muted">anon</span>{% endif %}
+                <span class="badge bg-secondary ms-1">{{ e.user_role }}</span>
+              </td>
+              <td>
+                <a href="/system/errors/{{ e.pk }}/" class="btn btn-sm btn-outline-primary">View</a>
+              </td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+      {% else %}
+        <div class="text-center py-5 text-muted">
+          <i class="bi bi-check-circle-fill fs-1 text-success"></i>
+          <p class="mt-2">No active errors. System is running clean!</p>
+        </div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Error Type Breakdown -->
+  <div class="col-lg-4">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart me-2"></i>By Error Type</h6>
+      {% for etype, count in type_counts %}
+      <div class="d-flex justify-content-between align-items-center border-bottom py-2">
+        <span class="small fw-bold">{{ etype }}</span>
+        <span class="badge bg-danger rounded-pill">{{ count }}</span>
+      </div>
+      {% empty %}
+        <p class="text-muted small text-center">No errors recorded.</p>
+      {% endfor %}
+    </div>
+
+    <div class="card p-4 mt-3">
+      <h6 class="fw-bold mb-2"><i class="bi bi-info-circle me-2 text-primary"></i>About Error Detection</h6>
+      <ul class="small text-muted mb-0 ps-3">
+        <li>All errors are auto-captured by middleware</li>
+        <li>Full traceback stored per error</li>
+        <li>Errors also written to <code>logs/errors.log</code></li>
+        <li>Admins can also view errors in <a href="/admin/core/errorlog/">Admin Panel</a></li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>Room Removal Notice</h2>
+<p>Hi <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+<p>You have been removed from the following room on {{ school_name }}:</p>
+<div class="highlight">
+  <p><strong>{{ room.name }}</strong> — {{ room.subject }} (Grade {{ room.grade_level }})</p>
+</div>
+<p>If you believe this is a mistake, please contact your teacher.</p>
+{% endblock %}

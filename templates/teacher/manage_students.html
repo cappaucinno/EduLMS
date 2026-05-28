@@ -1,0 +1,70 @@
+{% extends 'base.html' %}
+{% block title %}Manage Students{% endblock %}
+{% block page_title %}Students — {{ room.name }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <!-- Assigned -->
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-people-fill me-1 text-success"></i>Assigned Students
+        <span class="badge bg-success ms-1">{{ assigned.count }}</span>
+      </h6>
+      <div class="mb-2 text-muted small">
+        <i class="bi bi-mortarboard me-1"></i>Room Grade Level: <strong>Grade {{ room.grade_level }}</strong>
+      </div>
+      {% for rs in assigned %}
+      <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+        <div>
+          <strong>{{ rs.student.get_full_name|default:rs.student.username }}</strong>
+          <div class="text-muted small">@{{ rs.student.username }} &bull; Grade {{ rs.student.grade_level }}</div>
+        </div>
+        <form method="post" action="/teacher/room/{{ room.pk }}/students/{{ rs.student.pk }}/remove/">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-outline-danger"
+            onclick="return confirm('Remove this student from the room?')">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </form>
+      </div>
+      {% empty %}
+        <div class="text-center py-3 text-muted"><i class="bi bi-person-x fs-2"></i><br>No students assigned yet.</div>
+      {% endfor %}
+    </div>
+  </div>
+
+  <!-- Eligible to add -->
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">
+        <i class="bi bi-person-plus-fill me-1 text-primary"></i>Add Student
+        <span class="badge bg-secondary ms-1">{{ eligible.count }} eligible</span>
+      </h6>
+      <div class="mb-3 text-muted small">
+        Only showing approved students in <strong>Grade {{ room.grade_level }}</strong>.
+      </div>
+      {% for student in eligible %}
+      <div class="d-flex justify-content-between align-items-center border rounded p-2 mb-2">
+        <div>
+          <strong>{{ student.get_full_name|default:student.username }}</strong>
+          <div class="text-muted small">@{{ student.username }}</div>
+        </div>
+        <form method="post" action="/teacher/room/{{ room.pk }}/students/{{ student.pk }}/assign/">
+          {% csrf_token %}
+          <button type="submit" class="btn btn-sm btn-success">
+            <i class="bi bi-plus-lg"></i> Add
+          </button>
+        </form>
+      </div>
+      {% empty %}
+        <div class="text-center py-3 text-muted">
+          <i class="bi bi-search fs-2"></i>
+          <br>No eligible students found for Grade {{ room.grade_level }}.
+          <br><small>Make sure students have been approved and have the correct grade level set.</small>
+        </div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+<a href="/teacher/room/{{ room.pk }}/" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left me-1"></i>Back to Room</a>
+{% endblock %}

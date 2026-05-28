@@ -1,0 +1,12 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#9989; Your teacher account is approved!</h2>
+<p>Hi <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+<p>The administrator has approved your teacher account on <strong>{{ school_name }}</strong>. You now have full access to the teaching dashboard.</p>
+<div class="highlight">
+  <p>You can now create rooms, manage students, upload lessons, and more.</p>
+</div>
+<p>&#8226; Username: <strong>{{ user.username }}</strong><br>
+   &#8226; Role: <span class="badge">Teacher</span></p>
+<a href="#" class="btn">Go to Teacher Dashboard</a>
+{% endblock %}

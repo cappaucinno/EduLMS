@@ -1,0 +1,207 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <link rel="icon" type="image/png" href="{% static 'favicon/1.png' %}">
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <title>Verify Email — EduLMS</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css" rel="stylesheet"/>
+  <style>
+    body{background:linear-gradient(135deg,#1a1a2e,#6c63ff);min-height:100vh;display:flex;align-items:center;justify-content:center;padding:30px 0;}
+    .card{border-radius:24px;box-shadow:0 24px 64px rgba(0,0,0,.35);max-width:440px;width:100%;border:none;}
+    .brand{font-size:1.6rem;font-weight:800;color:#6c63ff;}
+    .otp-inputs{display:flex;gap:10px;justify-content:center;margin:24px 0;}
+    .otp-box{width:52px;height:60px;border:2px solid #dee2e6;border-radius:14px;font-size:24px;font-weight:700;text-align:center;transition:all .2s;outline:none;color:#1a1a2e;}
+    .otp-box:focus{border-color:#6c63ff;box-shadow:0 0 0 3px rgba(108,99,255,.2);}
+    .otp-box.filled{border-color:#6c63ff;background:#f0eeff;}
+    .otp-box.error-box{border-color:#dc3545;background:#fff5f5;}
+    .btn-verify{background:#6c63ff;color:#fff;border:none;border-radius:12px;padding:12px;font-weight:700;font-size:1rem;transition:all .2s;}
+    .btn-verify:hover{background:#574fd6;color:#fff;transform:translateY(-1px);}
+    .btn-verify:disabled{background:#aaa;cursor:not-allowed;transform:none;}
+    .timer{font-size:13px;font-weight:600;}
+    .timer.urgent{color:#dc3545;}
+    .timer.ok{color:#6c63ff;}
+    .shake{animation:shake .4s ease;}
+    @keyframes shake{0%,100%{transform:translateX(0)}20%,60%{transform:translateX(-6px)}40%,80%{transform:translateX(6px)}}
+    .step-badge{background:#f0eeff;color:#6c63ff;border-radius:50%;width:32px;height:32px;display:flex;align-items:center;justify-content:center;font-weight:700;font-size:14px;flex-shrink:0;}
+  
+    /* OTP mobile responsive */
+    @media(max-width:480px){
+      .card{border-radius:14px!important;margin:10px;}
+      .otp-input{width:48px!important;height:58px!important;font-size:1.4rem!important;}
+      h5{font-size:1.1rem!important;}
+    }
+    @media(max-width:360px){
+      .otp-input{width:42px!important;height:52px!important;font-size:1.2rem!important;}
+    }
+  </style>
+</head>
+<body>
+<div class="card p-4">
+  <div class="text-center mb-3">
+    <div class="brand mb-1"><i class="bi bi-mortarboard-fill"></i> EduLMS</div>
+    <div style="width:56px;height:56px;background:#f0eeff;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:12px auto;">
+      <i class="bi bi-envelope-check-fill text-primary fs-3"></i>
+    </div>
+    <h5 class="fw-bold mb-1">Verify Your Email</h5>
+    <p class="text-muted small mb-0">
+      We sent a 6-digit code to<br>
+      <strong>{{ masked_email }}</strong>
+    </p>
+  </div>
+
+  {% if error %}
+  <div class="alert alert-danger py-2 text-center small" id="errorAlert">
+    <i class="bi bi-exclamation-triangle me-1"></i>{{ error }}
+  </div>
+  {% endif %}
+
+  <form method="post" action="/accounts/verify-otp/{{ otp_obj.pk }}/" id="otpForm">
+    {% csrf_token %}
+    <!-- Hidden input holds the full OTP string -->
+    <input type="hidden" name="otp_code" id="otpHidden"/>
+
+    <!-- 6 individual digit boxes -->
+    <div class="otp-inputs" id="otpInputs">
+      {% for i in "123456" %}
+      <input class="otp-box {% if error %}error-box{% endif %}"
+             type="text" inputmode="numeric" maxlength="1"
+             data-index="{{ forloop.counter0 }}" autocomplete="off"/>
+      {% endfor %}
+    </div>
+
+    <!-- Countdown timer -->
+    <div class="text-center mb-3">
+      <span class="text-muted small">Code expires in </span>
+      <span class="timer ok" id="timer">10:00</span>
+    </div>
+
+    <button type="submit" class="btn btn-verify w-100" id="submitBtn" disabled>
+      <i class="bi bi-shield-check me-1"></i> Verify & Create Account
+    </button>
+  </form>
+
+  <div class="text-center mt-3">
+    <span class="text-muted small">Didn't receive it? </span>
+    <a href="/accounts/resend-otp/{{ otp_obj.pk }}/"
+       class="text-decoration-none fw-bold small" style="color:#6c63ff;"
+       id="resendLink">Resend code</a>
+    <span class="text-muted small d-none" id="resendWait">
+      Resend in <span id="resendTimer">30</span>s
+    </span>
+  </div>
+
+  <div class="text-center mt-2">
+    <a href="/accounts/register/" class="text-muted small text-decoration-none">
+      <i class="bi bi-arrow-left me-1"></i>Back to Register
+    </a>
+  </div>
+</div>
+
+<script>
+const boxes  = document.querySelectorAll('.otp-box');
+const hidden = document.getElementById('otpHidden');
+const btn    = document.getElementById('submitBtn');
+const form   = document.getElementById('otpForm');
+
+// ── Focus management ──────────────────────────────────────────────────────────
+boxes.forEach((box, idx) => {
+  box.addEventListener('input', e => {
+    const val = e.target.value.replace(/\D/g,'');
+    e.target.value = val;
+    if(val && idx < 5) boxes[idx+1].focus();
+    syncHidden();
+  });
+
+  box.addEventListener('keydown', e => {
+    if(e.key === 'Backspace' && !e.target.value && idx > 0){
+      boxes[idx-1].focus();
+      boxes[idx-1].value = '';
+      syncHidden();
+    }
+    // Allow only digits + control keys
+    if(!/^\d$/.test(e.key) && !['Backspace','Tab','ArrowLeft','ArrowRight'].includes(e.key))
+      e.preventDefault();
+  });
+
+  box.addEventListener('paste', e => {
+    e.preventDefault();
+    const pasted = (e.clipboardData || window.clipboardData)
+      .getData('text').replace(/\D/g,'').slice(0,6);
+    pasted.split('').forEach((ch, i) => {
+      if(boxes[i]) boxes[i].value = ch;
+    });
+    if(boxes[pasted.length-1]) boxes[pasted.length-1].focus();
+    syncHidden();
+  });
+
+  box.addEventListener('focus', () => box.select());
+});
+
+function syncHidden(){
+  const code = Array.from(boxes).map(b => b.value).join('');
+  hidden.value = code;
+  // Update styles
+  boxes.forEach(b => b.classList.toggle('filled', b.value !== ''));
+  boxes.forEach(b => b.classList.remove('error-box'));
+  btn.disabled = code.length !== 6;
+}
+
+// ── Shake on error ────────────────────────────────────────────────────────────
+{% if error %}
+document.getElementById('otpInputs').classList.add('shake');
+boxes.forEach(b => { b.value = ''; b.classList.add('error-box'); });
+hidden.value = '';
+btn.disabled = true;
+boxes[0].focus();
+{% else %}
+boxes[0].focus();
+{% endif %}
+
+// ── Countdown 10 min ──────────────────────────────────────────────────────────
+let seconds = 10 * 60;
+const timerEl = document.getElementById('timer');
+const tick = setInterval(() => {
+  seconds--;
+  if(seconds <= 0){
+    clearInterval(tick);
+    timerEl.textContent = 'Expired';
+    timerEl.className = 'timer urgent';
+    btn.disabled = true;
+    btn.textContent = 'Code expired — request a new one';
+    return;
+  }
+  const m = Math.floor(seconds/60);
+  const s = seconds % 60;
+  timerEl.textContent = `${m}:${s.toString().padStart(2,'0')}`;
+  timerEl.className = seconds < 60 ? 'timer urgent' : 'timer ok';
+}, 1000);
+
+// ── Resend cooldown 30s ───────────────────────────────────────────────────────
+const resendLink = document.getElementById('resendLink');
+const resendWait = document.getElementById('resendWait');
+const resendNum  = document.getElementById('resendTimer');
+let cooldown = 30;
+resendLink.classList.add('d-none');
+resendWait.classList.remove('d-none');
+const cool = setInterval(() => {
+  cooldown--;
+  resendNum.textContent = cooldown;
+  if(cooldown <= 0){
+    clearInterval(cool);
+    resendWait.classList.add('d-none');
+    resendLink.classList.remove('d-none');
+  }
+}, 1000);
+
+// ── Auto-submit when all 6 filled ────────────────────────────────────────────
+form.addEventListener('submit', e => {
+  if(hidden.value.length !== 6){
+    e.preventDefault();
+  }
+});
+</script>
+</body>
+</html>

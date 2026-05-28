@@ -1,0 +1,28 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Rooms{% endblock %}
+{% block page_title %}All Rooms{% endblock %}
+{% block content %}
+<div class="card p-0">
+  <div class="table-responsive">
+  <table class="table table-hover mb-0 align-middle">
+    <thead style="background:#f8fafc;">
+      <tr><th class="ps-4">Room</th><th>Subject</th><th>Grade</th><th>Teacher</th><th>Students</th><th>Created</th></tr>
+    </thead>
+    <tbody>
+      {% for room in rooms %}
+      <tr>
+        <td class="ps-4 fw-bold">{{ room.name }}</td>
+        <td><span class="badge bg-light text-dark border">{{ room.subject }}</span></td>
+        <td><span style="background:#e8e6ff;color:#6c63ff;padding:2px 8px;border-radius:6px;font-size:.78rem;font-weight:700;">Grade {{ room.grade_level }}</span></td>
+        <td>{{ room.teacher.get_full_name|default:room.teacher.username }}</td>
+        <td>{{ room.student_count }}</td>
+        <td class="text-muted small">{{ room.created_at|date:"M d, Y" }}</td>
+      </tr>
+      {% empty %}
+        <tr><td colspan="6" class="text-center text-muted py-4">No rooms yet.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

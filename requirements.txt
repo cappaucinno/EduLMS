@@ -1,0 +1,6 @@
+Django>=4.2,<5.0
+Pillow
+django-allauth[google]
+requests
+djangorestframework
+djangorestframework-simplejwt

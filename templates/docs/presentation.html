@@ -1,0 +1,404 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+  <link rel="icon" type="image/png" href="{% static 'favicon/1.png' %}">
+  <title>Presentation — EduLMS</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800;900&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0;}
+    :root{--accent:#6c63ff;--dark:#1a1a2e;--green:#10b981;--yellow:#f59e0b;--pink:#ec4899;}
+    body{font-family:'Inter',sans-serif;background:#0f172a;color:#fff;overflow-x:hidden;}
+
+    /* Action bar */
+    .action-bar{position:fixed;top:0;left:0;right:0;background:rgba(15,23,42,.95);backdrop-filter:blur(8px);padding:10px 28px;display:flex;justify-content:space-between;align-items:center;z-index:200;border-bottom:1px solid rgba(255,255,255,.08);}
+    .action-bar .brand{font-weight:700;font-size:.9rem;color:#94a3b8;}
+    .action-bar .brand b{color:var(--accent);}
+    .action-bar .controls{display:flex;gap:8px;align-items:center;}
+    .btn-ctrl{background:var(--accent);color:#fff;border:none;border-radius:8px;padding:6px 16px;font-size:.8rem;font-weight:600;cursor:pointer;}
+    .btn-ctrl.ghost{background:rgba(255,255,255,.1);color:#fff;}
+    .btn-ctrl:hover{opacity:.85;}
+    .slide-counter{color:#64748b;font-size:.8rem;}
+
+    /* Slide container */
+    .slides{padding-top:56px;}
+    .slide{min-height:100vh;display:flex;flex-direction:column;justify-content:center;align-items:center;padding:48px 60px;position:relative;border-bottom:2px solid rgba(255,255,255,.04);}
+
+    /* Slide types */
+    .slide.cover{background:linear-gradient(135deg,#0f172a 0%,#1e1b4b 50%,#0f172a 100%);}
+    .slide.dark{background:#0f172a;}
+    .slide.accent{background:linear-gradient(135deg,var(--accent),#4338ca);}
+    .slide.light{background:#f8fafc;color:#1a1a2e;}
+    .slide.green{background:linear-gradient(135deg,#064e3b,#065f46);}
+
+    /* Typography */
+    .slide-label{font-size:.7rem;letter-spacing:3px;text-transform:uppercase;opacity:.5;margin-bottom:16px;}
+    .slide h1{font-size:clamp(2.5rem,6vw,4.5rem);font-weight:900;line-height:1.05;text-align:center;margin-bottom:20px;}
+    .slide h2{font-size:clamp(1.6rem,3.5vw,2.8rem);font-weight:800;margin-bottom:20px;text-align:center;}
+    .slide h3{font-size:1.2rem;font-weight:700;margin-bottom:12px;}
+    .slide p{font-size:1rem;opacity:.8;line-height:1.7;text-align:center;max-width:720px;}
+    .accent-text{color:var(--accent);}
+    .green-text{color:var(--green);}
+    .yellow-text{color:var(--yellow);}
+    .pink-text{color:var(--pink);}
+
+    /* Cards grid */
+    .card-grid{display:grid;gap:20px;width:100%;max-width:900px;margin-top:24px;}
+    .card-grid.cols-2{grid-template-columns:1fr 1fr;}
+    .card-grid.cols-3{grid-template-columns:1fr 1fr 1fr;}
+    .card-grid.cols-4{grid-template-columns:1fr 1fr 1fr 1fr;}
+    .feat-card{background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.1);border-radius:16px;padding:22px 20px;}
+    .feat-card .icon{font-size:1.8rem;margin-bottom:10px;}
+    .feat-card h3{font-size:.95rem;margin-bottom:6px;}
+    .feat-card p{font-size:.82rem;opacity:.65;text-align:left;}
+    .feat-card.light-card{background:#fff;border:1px solid #e2e8f0;color:#1a1a2e;}
+    .feat-card.light-card p{opacity:.6;}
+
+    /* Flow steps */
+    .flow{display:flex;align-items:center;gap:0;flex-wrap:wrap;justify-content:center;margin-top:28px;max-width:900px;}
+    .flow-step{background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.12);border-radius:12px;padding:14px 18px;text-align:center;min-width:120px;}
+    .flow-step .num{width:28px;height:28px;border-radius:50%;background:var(--accent);color:#fff;font-weight:800;font-size:.8rem;display:flex;align-items:center;justify-content:center;margin:0 auto 8px;}
+    .flow-step p{font-size:.75rem;opacity:.8;text-align:center;}
+    .flow-arrow{font-size:1.2rem;opacity:.4;padding:0 6px;}
+
+    /* Role badges */
+    .role-badges{display:flex;gap:16px;flex-wrap:wrap;justify-content:center;margin-top:24px;}
+    .role-badge{padding:12px 24px;border-radius:50px;font-weight:700;font-size:.9rem;}
+    .role-badge.admin{background:rgba(239,68,68,.2);border:1px solid rgba(239,68,68,.4);color:#fca5a5;}
+    .role-badge.teacher{background:rgba(108,99,255,.2);border:1px solid rgba(108,99,255,.4);color:#a5b4fc;}
+    .role-badge.student{background:rgba(16,185,129,.2);border:1px solid rgba(16,185,129,.4);color:#6ee7b7;}
+
+    /* Big stat */
+    .big-stats{display:flex;gap:40px;flex-wrap:wrap;justify-content:center;margin-top:28px;}
+    .big-stat .num{font-size:3.5rem;font-weight:900;line-height:1;}
+    .big-stat .lbl{font-size:.75rem;opacity:.5;text-transform:uppercase;letter-spacing:1px;margin-top:4px;}
+
+    /* Quote */
+    .quote-box{background:rgba(108,99,255,.15);border:1px solid rgba(108,99,255,.3);border-radius:20px;padding:32px 36px;max-width:700px;text-align:center;margin-top:24px;}
+    .quote-box p{font-size:1.15rem;line-height:1.7;font-style:italic;opacity:.9;}
+    .quote-box .author{font-size:.8rem;opacity:.5;margin-top:12px;}
+
+    /* Table slide */
+    .slide-table{width:100%;max-width:800px;border-collapse:collapse;margin-top:24px;font-size:.88rem;}
+    .slide-table th{text-align:left;padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.15);color:var(--accent);font-size:.75rem;text-transform:uppercase;letter-spacing:.5px;}
+    .slide-table td{padding:10px 14px;border-bottom:1px solid rgba(255,255,255,.07);}
+    .slide-table tr:last-child td{border-bottom:none;}
+
+    @media print{
+      .action-bar{display:none!important;}
+      .slide{page-break-after:always;min-height:auto;padding:40px;}
+      body{background:#fff;color:#1a1a2e;}
+      .slide.cover,.slide.accent,.slide.green{background:#1a1a2e!important;}
+      .slide.light{background:#f8fafc!important;}
+    }
+    @media(max-width:700px){
+      .card-grid.cols-3,.card-grid.cols-4{grid-template-columns:1fr 1fr;}
+      .card-grid.cols-2{grid-template-columns:1fr;}
+      .flow{flex-direction:column;}
+      .flow-arrow{transform:rotate(90deg);}
+    }
+  </style>
+</head>
+<body>
+
+<div class="action-bar">
+  <div class="brand"><b>EduLMS</b> — Presentation</div>
+  <div class="controls">
+    <span class="slide-counter" id="slideCounter">Scroll to navigate</span>
+    <button class="btn-ctrl ghost" onclick="window.print()">🖨️ Print / PDF</button>
+    <a class="btn-ctrl" href="/superadmin/" style="text-decoration:none;">← Back</a>
+  </div>
+</div>
+
+<!-- ══ SLIDE 1: COVER ══════════════════════════════════════════════════════ -->
+<div class="slide cover">
+  <div class="slide-label">High School Digital Learning</div>
+  <h1>Edu<span class="accent-text">LMS</span></h1>
+  <p style="font-size:1.1rem;margin-top:8px;">A Role-Based Learning Management System<br>for Philippine High School Education</p>
+  <div class="role-badges" style="margin-top:40px;">
+    <span class="role-badge admin">Super Admin</span>
+    <span class="role-badge teacher">Teacher</span>
+    <span class="role-badge student">Student</span>
+  </div>
+  <p style="margin-top:40px;font-size:.8rem;opacity:.35;">Built with Django 4.2 &nbsp;·&nbsp; Bootstrap 5 &nbsp;·&nbsp; Python 3.11</p>
+</div>
+
+<!-- ══ SLIDE 2: PROBLEM ══════════════════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">The Problem</div>
+  <h2>Why EduLMS?</h2>
+  <div class="card-grid cols-3" style="max-width:800px;">
+    <div class="feat-card">
+      <div class="icon">❌</div>
+      <h3>Misplacement Errors</h3>
+      <p>Students self-enrolling in wrong grade level or subject rooms.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📋</div>
+      <h3>No Structure</h3>
+      <p>Generic LMS platforms don't enforce the K–12 subject/grade structure.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🔓</div>
+      <h3>Uncontrolled Access</h3>
+      <p>Students accessing rooms they don't belong to, exposing other grade's content.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 3: SOLUTION ══════════════════════════════════════════════════════ -->
+<div class="slide accent">
+  <div class="slide-label">The Solution</div>
+  <h2>One Subject. One Grade. One Room.</h2>
+  <p>Each virtual Room is locked to exactly one subject and one grade level.<br>Teachers assign students — students cannot join rooms independently.</p>
+  <div class="big-stats" style="margin-top:36px;">
+    <div class="big-stat" style="text-align:center;"><div class="num">6</div><div class="lbl">Grade Levels</div></div>
+    <div class="big-stat" style="text-align:center;"><div class="num">10</div><div class="lbl">Subjects</div></div>
+    <div class="big-stat" style="text-align:center;"><div class="num">3</div><div class="lbl">User Roles</div></div>
+    <div class="big-stat" style="text-align:center;"><div class="num">0</div><div class="lbl">Self-Enrollments</div></div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 4: ROLES ══════════════════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">Access Control</div>
+  <h2>Role-Based Access Control</h2>
+  <div class="card-grid cols-3" style="max-width:860px;">
+    <div class="feat-card" style="border-color:rgba(239,68,68,.3);">
+      <div class="icon">🛡️</div>
+      <h3 style="color:#fca5a5;">Super Admin</h3>
+      <p>Full system control. Approve teachers. Manage all users. View error logs. Access custom admin portal.</p>
+    </div>
+    <div class="feat-card" style="border-color:rgba(108,99,255,.4);">
+      <div class="icon">👩‍🏫</div>
+      <h3 style="color:#a5b4fc;">Teacher</h3>
+      <p>Create rooms. Approve students. Upload lessons, materials, assignments, quizzes. Grade work. Post announcements.</p>
+    </div>
+    <div class="feat-card" style="border-color:rgba(16,185,129,.3);">
+      <div class="icon">🎓</div>
+      <h3 style="color:#6ee7b7;">Student</h3>
+      <p>Access only assigned rooms. View lessons. Download materials. Submit assignments. Take quizzes. View grades.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 5: REGISTRATION FLOW ══════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">Onboarding</div>
+  <h2>Secure Registration Flow</h2>
+  <div class="flow">
+    <div class="flow-step"><div class="num">1</div><p>Fill Form<br><small style="opacity:.5;">No password needed</small></p></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="num">2</div><p>OTP Email<br><small style="opacity:.5;">6-digit, 10 min</small></p></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="num">3</div><p>Pending<br><small style="opacity:.5;">Teacher/Admin reviews</small></p></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="num">4</div><p>Approved<br><small style="opacity:.5;">Setup link emailed</small></p></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="num">5</div><p>Set Password<br><small style="opacity:.5;">72-hour link</small></p></div>
+    <span class="flow-arrow">→</span>
+    <div class="flow-step"><div class="num">6</div><p>Login<br><small style="opacity:.5;">Auto-redirected</small></p></div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 6: FEATURES ══════════════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">Features</div>
+  <h2>What's Inside Each Room</h2>
+  <div class="card-grid cols-4" style="max-width:920px;">
+    <div class="feat-card">
+      <div class="icon">📖</div>
+      <h3>Lessons</h3>
+      <p>Text content + optional video link</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📎</div>
+      <h3>Materials</h3>
+      <p>File downloads &amp; external links</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📝</div>
+      <h3>Assignments</h3>
+      <p>File upload, due date, max score</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">✅</div>
+      <h3>Grading</h3>
+      <p>Score + feedback, email to student</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">❓</div>
+      <h3>MCQ Quizzes</h3>
+      <p>Auto-scored, one attempt only</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📢</div>
+      <h3>Announcements</h3>
+      <p>Targeted by role/grade, scheduled</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">👤</div>
+      <h3>Profiles</h3>
+      <p>Photo upload, stats, password change</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📊</div>
+      <h3>Grades View</h3>
+      <p>All scores + quiz attempts at a glance</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 7: EMAIL ══════════════════════════════════════════════════════ -->
+<div class="slide green">
+  <div class="slide-label">Communication</div>
+  <h2>13 Automatic Email Triggers</h2>
+  <table class="slide-table">
+    <thead><tr><th>Event</th><th>Recipient</th></tr></thead>
+    <tbody>
+      <tr><td>Student registers → OTP</td><td>Student + all teachers notified</td></tr>
+      <tr><td>Student approved</td><td>Password setup link to student (72h)</td></tr>
+      <tr><td>Teacher approved</td><td>Password setup link to teacher (72h)</td></tr>
+      <tr><td>Assigned to / removed from room</td><td>Student</td></tr>
+      <tr><td>New assignment posted</td><td>All students in room</td></tr>
+      <tr><td>Assignment graded</td><td>Student (score + feedback)</td></tr>
+      <tr><td>Announcement posted</td><td>Audience (all / students / teachers / grade)</td></tr>
+      <tr><td>Forgot password</td><td>Reset link (1h) to user</td></tr>
+    </tbody>
+  </table>
+</div>
+
+<!-- ══ SLIDE 8: SECURITY ══════════════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">Security</div>
+  <h2>Built-in Security Layers</h2>
+  <div class="card-grid cols-2" style="max-width:760px;">
+    <div class="feat-card">
+      <div class="icon">🔐</div>
+      <h3>RBAC Decorators</h3>
+      <p>Every view is role-protected. Unauthorized access returns 403 Forbidden.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📧</div>
+      <h3>OTP Verification</h3>
+      <p>6-digit code, 10-minute expiry, 5-attempt lockout on registration.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🔗</div>
+      <h3>Setup Tokens</h3>
+      <p>64-byte URL-safe tokens. Single-use. 72-hour expiry for password setup.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">👁️</div>
+      <h3>Tab Detection</h3>
+      <p>Students switching tabs during quizzes — logged, warned, reported to teacher.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🐛</div>
+      <h3>Error Detection</h3>
+      <p>All unhandled exceptions auto-captured with traceback, user, URL, timestamp.</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🛡️</div>
+      <h3>CSRF Protection</h3>
+      <p>Django CSRF middleware on all forms. ngrok/production URLs whitelisted.</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 9: ADMIN PORTAL ══════════════════════════════════════════════ -->
+<div class="slide accent">
+  <div class="slide-label">Administration</div>
+  <h2>Super Admin Portal</h2>
+  <p>Custom admin dashboard — not Django's default admin.</p>
+  <div class="card-grid cols-4" style="max-width:860px;margin-top:28px;">
+    <div class="feat-card" style="background:rgba(255,255,255,.15);">
+      <div class="icon">📊</div>
+      <h3>Dashboard</h3>
+      <p>System stats at a glance</p>
+    </div>
+    <div class="feat-card" style="background:rgba(255,255,255,.15);">
+      <div class="icon">👥</div>
+      <h3>User Management</h3>
+      <p>Approve, delete, resend setup links</p>
+    </div>
+    <div class="feat-card" style="background:rgba(255,255,255,.15);">
+      <div class="icon">🚨</div>
+      <h3>Error Logs</h3>
+      <p>Resolve runtime errors</p>
+    </div>
+    <div class="feat-card" style="background:rgba(255,255,255,.15);">
+      <div class="icon">⚙️</div>
+      <h3>Site Settings</h3>
+      <p>View config &amp; email status</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 10: STACK ══════════════════════════════════════════════════════ -->
+<div class="slide dark">
+  <div class="slide-label">Technology</div>
+  <h2>Technical Stack</h2>
+  <div class="card-grid cols-3" style="max-width:780px;">
+    <div class="feat-card">
+      <div class="icon">🐍</div>
+      <h3>Django 4.2</h3>
+      <p>Python backend, ORM, template engine, migrations</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🗄️</div>
+      <h3>SQLite 3</h3>
+      <p>File-based database — zero-config, runs locally</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🎨</div>
+      <h3>Bootstrap 5</h3>
+      <p>Responsive UI with Bootstrap Icons, vanilla JS</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">📧</div>
+      <h3>Gmail SMTP</h3>
+      <p>HTML email templates, console fallback for dev</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🖼️</div>
+      <h3>Pillow</h3>
+      <p>Profile image processing and upload</p>
+    </div>
+    <div class="feat-card">
+      <div class="icon">🔒</div>
+      <h3>Django Auth</h3>
+      <p>Custom User model, RBAC, session management</p>
+    </div>
+  </div>
+</div>
+
+<!-- ══ SLIDE 11: QUOTE ══════════════════════════════════════════════════════ -->
+<div class="slide cover">
+  <div class="slide-label">Vision</div>
+  <h2>Simple. Structured. Secure.</h2>
+  <div class="quote-box">
+    <p>"EduLMS provides a simple, reliable, and efficient way to manage high school learning digitally — keeping everything organised, accurate, and controlled."</p>
+    <div class="author">— EduLMS System Design Principles</div>
+  </div>
+  <p style="margin-top:40px;font-size:.85rem;opacity:.4;">EduLMS &nbsp;·&nbsp; Built for Philippine High Schools &nbsp;·&nbsp; Grades 7–12</p>
+</div>
+
+<script>
+// Track current slide for counter
+const slides = document.querySelectorAll('.slide');
+const counter = document.getElementById('slideCounter');
+const observer = new IntersectionObserver(entries => {
+  entries.forEach(e => {
+    if(e.isIntersecting){
+      const idx = Array.from(slides).indexOf(e.target) + 1;
+      counter.textContent = `Slide ${idx} of ${slides.length}`;
+    }
+  });
+}, {threshold:.5});
+slides.forEach(s => observer.observe(s));
+</script>
+</body>
+</html>

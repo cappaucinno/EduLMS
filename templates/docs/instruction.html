@@ -1,0 +1,334 @@
+{% extends 'docs/base_doc.html' %}
+{% block doc_title %}User Instructions — EduLMS{% endblock %}
+{% block doc_type %}User Instructions{% endblock %}
+{% block content %}
+
+<div class="doc-header">
+  <div class="school">EduLMS High School Learning Management System</div>
+  <h1>User Instructions</h1>
+  <div class="meta">
+    <span>📅 Version 1.0 — 2025</span>
+    <span>👥 For: Students, Teachers &amp; Admin</span>
+    <span>🌐 Filipino High School K–12</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#getting-started">Getting Started</a></li>
+    <li><a href="#student-guide">Student Guide</a></li>
+    <li><a href="#teacher-guide">Teacher Guide</a></li>
+    <li><a href="#admin-guide">Super Admin Guide</a></li>
+    <li><a href="#email-setup">Email &amp; Password Setup</a></li>
+    <li><a href="#troubleshooting">Troubleshooting</a></li>
+  </ol>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="getting-started">1. Getting Started</h2>
+
+<h3>How Account Creation Works</h3>
+<p>EduLMS does <strong>not</strong> use a traditional registration with password. Instead:</p>
+<ol>
+  <li>You fill the registration form (no password field).</li>
+  <li>A 6-digit OTP is sent to your email — enter it to verify your address.</li>
+  <li>Your account is created with <em>Pending</em> status. A Teacher (for students) or the Admin (for teachers) must approve it.</li>
+  <li>Once approved, you receive a <strong>unique password setup link</strong> by email. Click it to set your own password.</li>
+  <li>The link is valid for <strong>72 hours</strong> and can only be used once.</li>
+</ol>
+
+<div class="highlight">
+  <p>⚠️ <strong>Important:</strong> You cannot log in until your account is approved AND you have set your password via the email link.</p>
+</div>
+
+<h3>Logging In</h3>
+<ol>
+  <li>Go to <code>/accounts/login/</code></li>
+  <li>Enter your <strong>username</strong> and <strong>password</strong></li>
+  <li>You will be redirected to your role's dashboard automatically</li>
+</ol>
+
+<h3>Forgot Your Password?</h3>
+<ol>
+  <li>Click <strong>"Forgot password?"</strong> on the login page</li>
+  <li>Enter your registered email address</li>
+  <li>Check your inbox for a reset link (valid <strong>1 hour</strong>)</li>
+  <li>Click the link and set a new password</li>
+</ol>
+
+<div class="page-break"></div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="student-guide">2. Student Guide</h2>
+
+<h3>Step 1 — Register</h3>
+<ol>
+  <li>Go to <code>/accounts/register/</code></li>
+  <li>Fill in: First Name, Last Name, Username, Email, Role (<strong>Student</strong>), Grade Level</li>
+  <li>Click <strong>Continue to Email Verification</strong></li>
+  <li>Check your email for a 6-digit OTP code and enter it on the next page</li>
+  <li>Wait for a teacher to approve your account — you will receive an email when approved</li>
+</ol>
+
+<h3>Step 2 — Set Your Password</h3>
+<ol>
+  <li>When a teacher approves your account, an email is sent with a password setup link</li>
+  <li>Click the link in the email (check spam if not in inbox)</li>
+  <li>Set a strong password (at least 8 characters, mix letters, numbers, symbols)</li>
+  <li>You will be automatically logged in after setting your password</li>
+</ol>
+
+<h3>Step 3 — Accessing Your Rooms</h3>
+<ol>
+  <li>After login you see your <strong>Student Dashboard</strong></li>
+  <li>All rooms assigned to you by your teacher appear as cards</li>
+  <li>Click <strong>Enter Room</strong> to open a room</li>
+  <li>You can only see rooms you have been assigned to</li>
+</ol>
+
+<h3>Inside a Room</h3>
+<table>
+  <thead><tr><th>Section</th><th>What to Do</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Lessons</strong></td><td>Click any lesson title to read. Optional video link opens in a new tab.</td></tr>
+    <tr><td><strong>Materials</strong></td><td>Click <strong>Download</strong> to save a file, or <strong>Open Link</strong> for external resources.</td></tr>
+    <tr><td><strong>Assignments</strong></td><td>Click <strong>Submit</strong> before the due date. Upload your file and add optional notes. You can only submit once.</td></tr>
+    <tr><td><strong>Quizzes</strong></td><td>Click <strong>Take Quiz</strong>. Answer all multiple-choice questions. Click Submit. You can only attempt each quiz once.</td></tr>
+  </tbody>
+</table>
+
+<div class="highlight">
+  <p>⚠️ <strong>Quiz Warning:</strong> Do not switch browser tabs during a quiz. Tab switching is detected, logged, and reported to your teacher automatically.</p>
+</div>
+
+<h3>Viewing Your Grades</h3>
+<ol>
+  <li>Click <strong>My Grades</strong> in the sidebar</li>
+  <li>Assignment grades show your score, teacher feedback, and date graded</li>
+  <li>Quiz results show your percentage score</li>
+</ol>
+
+<h3>Announcements</h3>
+<ol>
+  <li>Click the <strong>🔔 bell icon</strong> in the top bar to open the announcements panel</li>
+  <li>New announcements have a red badge — click to read the full detail</li>
+  <li>Click <strong>Mark as Read</strong> inside the popup to clear the notification</li>
+  <li>You can also go to <strong>Announcements</strong> in the sidebar to see all posts</li>
+</ol>
+
+<h3>Your Profile</h3>
+<ol>
+  <li>Click your avatar in the top-right corner, or go to <code>/accounts/profile/</code></li>
+  <li><strong>Edit Profile tab:</strong> Update your name, email, and profile photo</li>
+  <li><strong>Change Password tab:</strong> Enter your current password, then set a new one</li>
+  <li>Grade level and username can only be changed by your teacher</li>
+</ol>
+
+<div class="page-break"></div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="teacher-guide">3. Teacher Guide</h2>
+
+<h3>Step 1 — Register &amp; Get Approved</h3>
+<ol>
+  <li>Go to <code>/accounts/register/</code>, select Role: <strong>Teacher</strong></li>
+  <li>Complete email OTP verification</li>
+  <li>Wait for the <strong>Super Admin</strong> to approve your teacher account</li>
+  <li>You will receive an email with a password setup link once approved</li>
+</ol>
+
+<h3>Step 2 — Approve Student Accounts</h3>
+<ol>
+  <li>Go to <strong>Student Approvals</strong> in the sidebar (shows a badge when pending)</li>
+  <li>Review each pending student's name, grade level, and email</li>
+  <li>Click <strong>Approve</strong> — the student receives a password setup link by email</li>
+  <li>Click <strong>Reject</strong> to permanently delete the account (student is notified by email)</li>
+</ol>
+
+<div class="highlight">
+  <p>📌 <strong>Tip:</strong> Check the student's Grade Level before approving. Only students with the correct grade can be assigned to matching rooms.</p>
+</div>
+
+<h3>Step 3 — Create a Room</h3>
+<ol>
+  <li>Click <strong>Create Room</strong> in the sidebar</li>
+  <li>Fill in the Room Name (e.g. "Grade 8 — Mathematics")</li>
+  <li>Select the <strong>Subject</strong> and <strong>Grade Level</strong></li>
+  <li>Add a description (optional) and thumbnail image (optional)</li>
+  <li>Click <strong>Create Room</strong></li>
+</ol>
+<p>Each room is locked to one subject and one grade level. Students can only be assigned to rooms matching their grade.</p>
+
+<h3>Step 4 — Assign Students to a Room</h3>
+<ol>
+  <li>From the Teacher Dashboard, click <strong>Students</strong> on a room card</li>
+  <li>The left panel shows students already assigned</li>
+  <li>The right panel shows approved students in the matching grade — click <strong>Add</strong> to assign</li>
+  <li>To remove a student, click the ✕ button next to their name</li>
+  <li>Assigned/removed students receive an email notification automatically</li>
+</ol>
+
+<h3>Managing Room Content</h3>
+<p>Click <strong>Open</strong> on any room card to access the Room Overview. From there:</p>
+
+<table>
+  <thead><tr><th>Content Type</th><th>How to Add</th><th>Notes</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Lessons</strong></td><td>Click <strong>+ Add</strong> next to Lessons</td><td>Add title, content text, optional video URL</td></tr>
+    <tr><td><strong>Materials</strong></td><td>Click <strong>+ Add</strong> next to Materials</td><td>Upload a file (PDF/image) and/or add an external link</td></tr>
+    <tr><td><strong>Assignments</strong></td><td>Click <strong>+ Add</strong> next to Assignments</td><td>Set title, description, due date, max score. Students are notified by email.</td></tr>
+    <tr><td><strong>Quizzes</strong></td><td>Click <strong>+ Add</strong> next to Quizzes</td><td>Create quiz first, then add MCQ questions with 4 options and mark the correct answer</td></tr>
+  </tbody>
+</table>
+
+<h3>Grading Submissions</h3>
+<ol>
+  <li>From the Room Overview, click the submission count next to an assignment</li>
+  <li>The submissions table shows each student's file and status (Submitted / Graded)</li>
+  <li>Click <strong>Grade</strong> to open the grading form</li>
+  <li>Enter the score and optional feedback, then save</li>
+  <li>The student receives an email with their score and feedback immediately</li>
+</ol>
+
+<h3>Posting Announcements</h3>
+<ol>
+  <li>Go to <strong>Announcements</strong> in the sidebar → click <strong>New Announcement</strong></li>
+  <li>Fill in the title and content</li>
+  <li>Choose the <strong>Type</strong> (Notice, Event, Exam, Holiday, Urgent)</li>
+  <li>Choose the <strong>Audience</strong> — All, Students only, Teachers only, or a specific Grade</li>
+  <li>Optionally attach a file or link, schedule a future publish date, or pin the post</li>
+  <li>Check <strong>Send Email</strong> to blast the announcement to all recipients by email</li>
+  <li>Click <strong>Post Announcement</strong></li>
+</ol>
+
+<h3>Teacher Profile</h3>
+<ol>
+  <li>Click your avatar or go to <code>/accounts/teacher-profile/</code></li>
+  <li>Upload a profile photo, update name and email</li>
+  <li>Use the <strong>Change Password</strong> tab to update your password</li>
+</ol>
+
+<h3>Error Dashboard</h3>
+<p>Go to <strong>Error Dashboard</strong> in the sidebar (<code>/system/errors/</code>) to view and resolve any runtime errors captured by the system.</p>
+
+<div class="page-break"></div>
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="admin-guide">4. Super Admin Guide</h2>
+
+<p>The Super Admin portal is at <code>/superadmin/</code>. It provides full system oversight.</p>
+
+<h3>Approving Teacher Accounts</h3>
+<ol>
+  <li>Go to <strong>Users</strong> → filter by <strong>Role: Teacher</strong> and <strong>Status: Pending</strong></li>
+  <li>Click <strong>Approve &amp; Send Link</strong> — the teacher receives a password setup email immediately</li>
+  <li>To resend a setup link to an already-approved user, click <strong>Resend Link</strong></li>
+</ol>
+
+<div class="highlight">
+  <p>📌 <strong>Important:</strong> Make sure <code>SITE_BASE_URL</code> is set correctly in <code>local_settings.py</code> before approving. The setup link URL is built from this setting.</p>
+</div>
+
+<h3>User Management</h3>
+<table>
+  <thead><tr><th>Action</th><th>Button</th><th>Effect</th></tr></thead>
+  <tbody>
+    <tr><td>Approve user</td><td>Approve &amp; Send Link</td><td>Sets is_approved=True, generates setup token, emails the link</td></tr>
+    <tr><td>Resend setup link</td><td>Resend Link</td><td>Generates new token (old one invalidated), emails fresh link</td></tr>
+    <tr><td>Delete user</td><td>Delete</td><td>Permanently removes user and all associated data</td></tr>
+  </tbody>
+</table>
+
+<h3>Site Settings</h3>
+<ol>
+  <li>Go to <strong>Site Settings</strong> in the superadmin sidebar</li>
+  <li>Review the current <code>SITE_BASE_URL</code>, email backend, and school name</li>
+  <li>To change values, edit <code>lms_project/local_settings.py</code> and restart the server</li>
+</ol>
+
+<h3>Documents</h3>
+<p>The superadmin sidebar has links to three printable documents:</p>
+<ul>
+  <li><strong>System Document</strong> — full technical documentation</li>
+  <li><strong>Changelog</strong> — version history of all releases</li>
+  <li><strong>Presentation</strong> — visual slide deck for stakeholder presentations</li>
+  <li><strong>Instructions</strong> — this page</li>
+</ul>
+<p>All pages have a <strong>Print / Save PDF</strong> button in the top bar.</p>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="email-setup">5. Email &amp; Password Setup</h2>
+
+<h3>For Developers — Activating Gmail</h3>
+<ol>
+  <li>Copy <code>lms_project/local_settings.example.py</code> → <code>lms_project/local_settings.py</code></li>
+  <li>Set your ngrok URL: <code>SITE_BASE_URL = 'https://your-url.ngrok-free.app'</code></li>
+  <li>Enable 2FA on your Gmail account</li>
+  <li>Go to: myaccount.google.com → Security → App Passwords → create one for "Mail"</li>
+  <li>Paste the 16-character App Password as <code>EMAIL_HOST_PASSWORD</code></li>
+  <li>Set <code>EMAIL_BACKEND = 'django.core.mail.backends.smtp.EmailBackend'</code></li>
+  <li>Test with: <code>python manage.py test_email your@email.com</code></li>
+</ol>
+
+<div class="highlight">
+  <p>💡 <strong>Development tip:</strong> When <code>EMAIL_BACKEND</code> is set to <code>console</code>, all emails print in your terminal window. Look for the setup URL in the output when approving a user.</p>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════ -->
+<h2 id="troubleshooting">6. Troubleshooting</h2>
+
+<table>
+  <thead><tr><th>Problem</th><th>Cause</th><th>Fix</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>Cannot log in — "pending approval"</td>
+      <td>Account not yet approved</td>
+      <td>Ask your teacher (student) or admin (teacher) to approve your account</td>
+    </tr>
+    <tr>
+      <td>Setup link says "expired"</td>
+      <td>Link is older than 72 hours or already used</td>
+      <td>Ask your teacher/admin to resend the setup link from the user management page</td>
+    </tr>
+    <tr>
+      <td>Did not receive OTP email</td>
+      <td>Email in spam, or incorrect email entered</td>
+      <td>Check spam folder. Click "Resend code" on the OTP page (30-second cooldown). If email was wrong, re-register.</td>
+    </tr>
+    <tr>
+      <td>Did not receive setup link email</td>
+      <td>Email in spam, or email config not set</td>
+      <td>Check spam. Ask admin to resend. If using console backend, check the terminal window.</td>
+    </tr>
+    <tr>
+      <td>403 Forbidden on any page</td>
+      <td>Role mismatch or not logged in</td>
+      <td>Log out and log in again. Make sure you are using the correct portal URL for your role.</td>
+    </tr>
+    <tr>
+      <td>CSRF verification failed</td>
+      <td>Stale browser cookie</td>
+      <td>Open DevTools → Application → Cookies → delete <code>csrftoken</code> and <code>sessionid</code> → reload page</td>
+    </tr>
+    <tr>
+      <td>Email not sending (Gmail)</td>
+      <td>Wrong App Password or 2FA not enabled</td>
+      <td>Run <code>python manage.py test_email your@email.com</code> and follow the error message. Ensure Gmail 2FA is ON and you are using an App Password, not your account password.</td>
+    </tr>
+    <tr>
+      <td>Setup link has wrong domain (localhost instead of ngrok)</td>
+      <td><code>SITE_BASE_URL</code> not set to ngrok URL</td>
+      <td>Edit <code>lms_project/local_settings.py</code> and set <code>SITE_BASE_URL</code> to your ngrok URL, then restart the server</td>
+    </tr>
+    <tr>
+      <td>Room not showing students to assign</td>
+      <td>Student's grade level doesn't match room's grade level</td>
+      <td>Check the student's grade level in the Admin Portal → Users. It must match the room's grade level exactly.</td>
+    </tr>
+    <tr>
+      <td>Quiz submitted but no score shown</td>
+      <td>Quiz was already attempted</td>
+      <td>Each quiz can only be taken once. The score is visible in My Grades.</td>
+    </tr>
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,9 @@
+{{ school_name }} — {{ announcement.title }}
+
+{{ announcement.content }}
+
+Type: {{ announcement.ann_type|upper }}
+Posted by: {{ announcement.author.get_full_name|default:announcement.author.username }}
+Date: {{ announcement.created_at|date:"F d, Y" }}
+
+{% if announcement.link %}Link: {{ announcement.link }}{% endif %}

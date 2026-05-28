@@ -1,0 +1,14 @@
+{{ school_name }} — Your account has been approved!
+
+Hi {{ user.get_full_name|default:user.username }},
+
+Great news! A teacher has approved your student account on {{ school_name }}.
+
+You can now log in and access your assigned rooms.
+
+Username: {{ user.username }}
+Grade Level: Grade {{ user.grade_level }}
+
+Log in at your school's EduLMS portal.
+
+This is an automated message from {{ school_name }}.

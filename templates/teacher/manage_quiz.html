@@ -1,0 +1,28 @@
+{% extends 'base.html' %}
+{% block title %}Quizzes{% endblock %}
+{% block page_title %}Quizzes — {{ room.name }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Create Quiz</h6>
+      <form method="post">{% csrf_token %}
+        {% for f in form %}<div class="mb-3"><label class="form-label fw-bold small">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+        <button type="submit" class="btn btn-accent w-100">Create Quiz</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">All Quizzes</h6>
+      {% for q in room.quizzes.all %}
+      <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center">
+        <div><strong>{{ q.title }}</strong><div class="text-muted small">{{ q.questions.count }} questions</div></div>
+        <a href="/teacher/quiz/{{ q.pk }}/questions/" class="btn btn-sm btn-outline-primary">Add Questions</a>
+      </div>
+      {% empty %}<div class="text-center py-3 text-muted">No quizzes yet.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+<a href="/teacher/room/{{ room.pk }}/" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+{% endblock %}

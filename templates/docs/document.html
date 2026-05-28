@@ -1,0 +1,132 @@
+{% extends 'docs/base_doc.html' %}
+{% block doc_title %}System Documentation — EduLMS{% endblock %}
+{% block doc_type %}System Documentation{% endblock %}
+{% block content %}
+
+<div class="doc-header">
+  <div class="school">EduLMS High School Learning Management System</div>
+  <h1>System Documentation</h1>
+  <div class="meta">
+    <span>📅 Version 1.0 — 2025</span>
+    <span>🏫 High School Digital Learning</span>
+    <span>🛠️ Built with Django 4.2</span>
+  </div>
+</div>
+
+<div class="toc">
+  <h3>Table of Contents</h3>
+  <ol>
+    <li><a href="#overview">System Overview</a></li>
+    <li><a href="#roles">User Roles &amp; Permissions</a></li>
+    <li><a href="#registration">Registration &amp; Approval Flow</a></li>
+    <li><a href="#rooms">Room (Course) System</a></li>
+    <li><a href="#features">Core Features</a></li>
+    <li><a href="#email">Email Notification System</a></li>
+    <li><a href="#security">Security Features</a></li>
+    <li><a href="#technical">Technical Stack</a></li>
+  </ol>
+</div>
+
+<h2 id="overview">1. System Overview</h2>
+<p>EduLMS is a web-based Learning Management System designed specifically for Philippine high school environments (Grades 7–12). The system organises learning by grade level and subject, ensuring each virtual "Room" corresponds to exactly one subject for one grade level.</p>
+
+<div class="highlight">
+  <p><strong>Core principle:</strong> Teachers control all student access. Students cannot join or browse rooms independently — they must be assigned by a teacher. This prevents misplacement errors and maintains academic structure.</p>
+</div>
+
+<h2 id="roles">2. User Roles &amp; Permissions</h2>
+<table>
+  <thead><tr><th>Role</th><th>Portal</th><th>Key Permissions</th></tr></thead>
+  <tbody>
+    <tr><td><span class="badge">Super Admin</span></td><td>/superadmin/</td><td>Full system control, approve teachers, manage all users and rooms, view error logs</td></tr>
+    <tr><td><span class="badge yellow">Teacher</span></td><td>/teacher/dashboard/</td><td>Create rooms, approve students, upload lessons/materials, create assignments &amp; quizzes, grade submissions, post announcements</td></tr>
+    <tr><td><span class="badge green">Student</span></td><td>/student/dashboard/</td><td>View assigned rooms, access lessons, download materials, submit assignments, take quizzes, view grades, read announcements</td></tr>
+  </tbody>
+</table>
+
+<h2 id="registration">3. Registration &amp; Approval Flow</h2>
+<h3>Student Flow</h3>
+<ol>
+  <li>Student fills registration form (no password required)</li>
+  <li>OTP sent to student's email — must verify within 10 minutes</li>
+  <li>Account created with pending status</li>
+  <li>Teacher approves the student account</li>
+  <li>Student receives a unique password setup link (valid 72 hours)</li>
+  <li>Student sets their own password and is auto-logged in</li>
+</ol>
+<h3>Teacher Flow</h3>
+<ol>
+  <li>Teacher fills registration form</li>
+  <li>OTP verified (email confirmed)</li>
+  <li>Super Admin approves the teacher account</li>
+  <li>Teacher receives a unique password setup link (valid 72 hours)</li>
+  <li>Teacher sets password and accesses dashboard</li>
+</ol>
+
+<div class="page-break"></div>
+
+<h2 id="rooms">4. Room (Course) System</h2>
+<p>Each Room enforces two hard constraints at the database level:</p>
+<ul>
+  <li><strong>One subject per room</strong> — e.g. Mathematics, Science, English</li>
+  <li><strong>One grade level per room</strong> — Grades 7 through 12</li>
+</ul>
+<p>Teachers assign students to rooms manually. Only students whose registered grade level matches the room's grade level appear in the assignment list — preventing cross-grade access.</p>
+
+<h2 id="features">5. Core Features</h2>
+<table>
+  <thead><tr><th>Feature</th><th>Who</th><th>Description</th></tr></thead>
+  <tbody>
+    <tr><td>Lessons</td><td>Teacher creates, Student views</td><td>Text content with optional YouTube/video link</td></tr>
+    <tr><td>Materials</td><td>Teacher uploads, Student downloads</td><td>Files (PDF, images) and external links</td></tr>
+    <tr><td>Assignments</td><td>Teacher sets, Student submits</td><td>File upload + notes, due date, max score</td></tr>
+    <tr><td>Grading</td><td>Teacher grades</td><td>Score + feedback, triggers email to student</td></tr>
+    <tr><td>MCQ Quizzes</td><td>Teacher creates, Student takes</td><td>4-option MCQ, auto-scored, one attempt only</td></tr>
+    <tr><td>Announcements</td><td>Teacher posts</td><td>By type (Notice/Event/Exam/Urgent), targeted by audience, email blast, schedule future date, pin</td></tr>
+    <tr><td>Profile</td><td>Teacher &amp; Student</td><td>Photo upload, name/email edit, password change</td></tr>
+  </tbody>
+</table>
+
+<h2 id="email">6. Email Notification System</h2>
+<p>All emails use HTML templates with the school branding. The system supports Gmail SMTP or any SMTP provider. During development, emails print to the terminal console.</p>
+<table>
+  <thead><tr><th>Trigger</th><th>Recipient</th></tr></thead>
+  <tbody>
+    <tr><td>Student registers</td><td>OTP to student, notification to all teachers</td></tr>
+    <tr><td>Teacher registers</td><td>OTP to teacher, notification to Super Admin</td></tr>
+    <tr><td>Student approved</td><td>Password setup link (72h) to student</td></tr>
+    <tr><td>Teacher approved</td><td>Password setup link (72h) to teacher</td></tr>
+    <tr><td>Student rejected</td><td>Rejection notice to student</td></tr>
+    <tr><td>Assigned to room</td><td>Room details email to student</td></tr>
+    <tr><td>Removed from room</td><td>Removal notice to student</td></tr>
+    <tr><td>New assignment posted</td><td>All students in the room</td></tr>
+    <tr><td>Assignment graded</td><td>Score + feedback to student</td></tr>
+    <tr><td>Announcement posted</td><td>Target audience (all/students/teachers/grade)</td></tr>
+    <tr><td>Forgot password</td><td>Reset link (1h) to user</td></tr>
+  </tbody>
+</table>
+
+<h2 id="security">7. Security Features</h2>
+<ul>
+  <li><strong>RBAC</strong> — Role-Based Access Control via decorators on every view</li>
+  <li><strong>OTP Email Verification</strong> — 6-digit code, 10-minute expiry, 5-attempt limit</li>
+  <li><strong>Password Setup Tokens</strong> — 64-byte URL-safe, single-use, 72-hour expiry</li>
+  <li><strong>Tab Detection</strong> — Detects tab switching during quizzes (students only), logs violations</li>
+  <li><strong>Error Detection Middleware</strong> — Auto-captures all unhandled exceptions with full context</li>
+  <li><strong>CSRF Protection</strong> — Django CSRF on all forms; ngrok/production URLs whitelisted</li>
+</ul>
+
+<h2 id="technical">8. Technical Stack</h2>
+<table>
+  <thead><tr><th>Layer</th><th>Technology</th></tr></thead>
+  <tbody>
+    <tr><td>Backend</td><td>Django 4.2 (Python 3.11)</td></tr>
+    <tr><td>Database</td><td>SQLite 3 (local)</td></tr>
+    <tr><td>Frontend</td><td>Bootstrap 5.3, Bootstrap Icons, vanilla JS</td></tr>
+    <tr><td>Email</td><td>Django EmailMultiAlternatives (HTML + plain text), Gmail SMTP</td></tr>
+    <tr><td>File storage</td><td>Local disk (media/ folder)</td></tr>
+    <tr><td>Image handling</td><td>Pillow</td></tr>
+  </tbody>
+</table>
+
+{% endblock %}

@@ -1,0 +1,11 @@
+{{ school_name }} — Your teacher account is approved!
+
+Hi {{ user.get_full_name|default:user.username }},
+
+The administrator has approved your teacher account on {{ school_name }}.
+
+You can now log in and access the Teacher Dashboard.
+
+Username: {{ user.username }}
+
+This is an automated message from {{ school_name }}.

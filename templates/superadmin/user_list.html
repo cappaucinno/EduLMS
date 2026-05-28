@@ -1,0 +1,75 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}Users{% endblock %}
+{% block page_title %}User Management{% endblock %}
+{% block content %}
+
+<!-- Filters -->
+<div class="card p-3 mb-4">
+  <form method="get" class="d-flex gap-3 flex-wrap align-items-center">
+    <input type="text" name="q" value="{{ search }}" class="form-control form-control-sm" style="max-width:200px;" placeholder="Search name / email">
+    <select name="role" class="form-select form-select-sm" style="max-width:140px;" onchange="this.form.submit()">
+      <option value="">All Roles</option>
+      <option value="teacher" {% if role == 'teacher' %}selected{% endif %}>Teachers</option>
+      <option value="student" {% if role == 'student' %}selected{% endif %}>Students</option>
+    </select>
+    <select name="status" class="form-select form-select-sm" style="max-width:150px;" onchange="this.form.submit()">
+      <option value="">All Status</option>
+      <option value="pending" {% if status == 'pending' %}selected{% endif %}>Pending</option>
+      <option value="approved" {% if status == 'approved' %}selected{% endif %}>Approved</option>
+    </select>
+    <button class="btn btn-sa btn-sm">Search</button>
+    <a href="/superadmin/users/" class="btn btn-outline-secondary btn-sm">Clear</a>
+    <span class="text-muted small ms-auto">{{ users|length }} user(s)</span>
+  </form>
+</div>
+
+<div class="card p-0">
+  <div class="table-responsive">
+  <table class="table table-hover mb-0 align-middle">
+    <thead style="background:#f8fafc;">
+      <tr><th class="ps-4">User</th><th>Role</th><th>Grade</th><th>Email</th><th>Joined</th><th>Status</th><th class="pe-4">Actions</th></tr>
+    </thead>
+    <tbody>
+      {% for u in users %}
+      <tr>
+        <td class="ps-4">
+          <strong>{{ u.get_full_name|default:u.username }}</strong>
+          <div class="text-muted" style="font-size:.75rem;">@{{ u.username }}</div>
+        </td>
+        <td><span class="badge {% if u.role == 'teacher' %}bg-primary{% else %}bg-success{% endif %}">{{ u.role }}</span></td>
+        <td>{% if u.grade_level %}Grade {{ u.grade_level }}{% else %}—{% endif %}</td>
+        <td class="small text-muted">{{ u.email|default:"—" }}</td>
+        <td class="small text-muted">{{ u.date_joined|date:"M d, Y" }}</td>
+        <td>
+          {% if u.is_approved %}
+            <span class="badge bg-success">Active</span>
+          {% else %}
+            <span class="badge bg-warning text-dark">⏳ Pending</span>
+          {% endif %}
+        </td>
+        <td class="pe-4">
+          <div class="d-flex gap-1">
+            {% if not u.is_approved %}
+            <form method="post" action="/superadmin/users/{{ u.pk }}/approve/" class="d-inline">{% csrf_token %}
+              <button class="btn btn-success btn-sm">Approve &amp; Send Link</button>
+            </form>
+            {% else %}
+            <form method="post" action="/superadmin/users/{{ u.pk }}/resend/" class="d-inline">{% csrf_token %}
+              <button class="btn btn-outline-primary btn-sm">Resend Link</button>
+            </form>
+            {% endif %}
+            <form method="post" action="/superadmin/users/{{ u.pk }}/delete/"
+                  onsubmit="return confirm('Delete {{ u.username }}? This cannot be undone.')">{% csrf_token %}
+              <button class="btn btn-outline-danger btn-sm">Delete</button>
+            </form>
+          </div>
+        </td>
+      </tr>
+      {% empty %}
+        <tr><td colspan="7" class="text-center text-muted py-4">No users found.</td></tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</div>
+{% endblock %}

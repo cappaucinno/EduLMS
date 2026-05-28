@@ -1,0 +1,32 @@
+{% extends 'base.html' %}
+{% block title %}Submit Assignment{% endblock %}
+{% block page_title %}Submit — {{ assignment.title }}{% endblock %}
+{% block content %}
+<div class="card p-4" style="max-width:580px">
+  <div class="mb-4 p-3 rounded" style="background:#f8f7ff;border-left:4px solid #6c63ff;">
+    <span class="grade-badge me-2">Grade {{ assignment.room.grade_level }}</span>
+    <span class="subject-tag">{{ assignment.room.subject }}</span>
+    <h6 class="fw-bold mt-2 mb-1">{{ assignment.title }}</h6>
+    <p class="text-muted small mb-1">{{ assignment.description }}</p>
+    <div class="small text-muted">
+      <i class="bi bi-calendar me-1"></i>Due: {{ assignment.due_date|date:"M d, Y H:i" }}
+      &nbsp;|&nbsp; Max Score: {{ assignment.max_score }} pts
+    </div>
+  </div>
+  <form method="post" enctype="multipart/form-data" action="/student/assignment/{{ assignment.pk }}/submit/">
+    {% csrf_token %}
+    {% for field in form %}
+    <div class="mb-3">
+      <label class="form-label fw-bold small">{{ field.label }}</label>
+      {{ field }}
+    </div>
+    {% endfor %}
+    <div class="d-flex gap-2">
+      <button type="submit" class="btn btn-accent">
+        <i class="bi bi-upload me-1"></i>Submit Assignment
+      </button>
+      <a href="/student/room/{{ assignment.room.pk }}/" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

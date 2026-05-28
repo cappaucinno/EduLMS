@@ -1,0 +1,79 @@
+{% extends 'base.html' %}
+{% block title %}Teacher Dashboard{% endblock %}
+{% block page_title %}My Rooms{% endblock %}
+{% block content %}
+
+{% if pending_approvals %}
+<div class="alert alert-warning d-flex align-items-center justify-content-between mb-4 rounded-3">
+  <div><i class="bi bi-person-exclamation me-2"></i><strong>{{ pending_approvals }} student(s)</strong> are waiting for account approval.</div>
+  <a href="/teacher/students/pending/" class="btn btn-warning btn-sm fw-bold">Review Now</a>
+</div>
+{% endif %}
+
+<!-- Stats -->
+<div class="row g-3 mb-4">
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#6c63ff,#a29bfe)">
+      <div class="fs-2 fw-bold">{{ rooms.count }}</div><div class="small">Rooms</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#00b894,#00cec9)">
+      <div class="fs-2 fw-bold">{{ total_students }}</div><div class="small">Students</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fdcb6e,#e17055)">
+      <div class="fs-2 fw-bold">{{ total_assignments }}</div><div class="small">Assignments</div>
+    </div>
+  </div>
+  <div class="col-6 col-md-3">
+    <div class="stat-card" style="background:linear-gradient(135deg,#fd79a8,#e84393)">
+      <div class="fs-2 fw-bold">{{ pending_subs }}</div><div class="small">To Grade</div>
+    </div>
+  </div>
+</div>
+
+<!-- Room Cards -->
+<div class="card p-4">
+  <div class="d-flex justify-content-between align-items-center mb-4">
+    <h5 class="mb-0 fw-bold"><i class="bi bi-door-open me-2"></i>My Rooms</h5>
+    <a href="/teacher/room/create/" class="btn btn-accent"><i class="bi bi-plus-lg me-1"></i>New Room</a>
+  </div>
+  {% if rooms %}
+  <!-- Group by grade -->
+  {% regroup rooms by grade_level as grade_groups %}
+  {% for grade_group in grade_groups %}
+    <h6 class="fw-bold text-muted mt-3 mb-2"><i class="bi bi-mortarboard me-1"></i>Grade {{ grade_group.grouper }}</h6>
+    <div class="row g-3 mb-2">
+      {% for room in grade_group.list %}
+      <div class="col-md-6 col-lg-4">
+        <div class="card h-100 p-3 border-0" style="background:#fafafa;border-left:4px solid #6c63ff!important;border-radius:12px;">
+          <div class="d-flex align-items-start gap-2 mb-2">
+            <div>
+              <span class="grade-badge">Grade {{ room.grade_level }}</span>
+              <span class="subject-tag ms-1">{{ room.subject }}</span>
+            </div>
+          </div>
+          <h6 class="fw-bold mb-1">{{ room.name }}</h6>
+          <p class="text-muted small mb-2">{{ room.description|truncatechars:60|default:"No description." }}</p>
+          <div class="text-muted small mb-3"><i class="bi bi-people me-1"></i>{{ room.student_count }} students</div>
+          <div class="d-flex flex-wrap gap-1 mt-auto">
+            <a href="/teacher/room/{{ room.pk }}/" class="btn btn-sm btn-accent">Open</a>
+            <a href="/teacher/room/{{ room.pk }}/students/" class="btn btn-sm btn-outline-success">Students</a>
+            <a href="/teacher/room/{{ room.pk }}/edit/" class="btn btn-sm btn-outline-secondary">Edit</a>
+            <a href="/teacher/room/{{ room.pk }}/delete/" class="btn btn-sm btn-outline-danger">Delete</a>
+          </div>
+        </div>
+      </div>
+      {% endfor %}
+    </div>
+  {% endfor %}
+  {% else %}
+    <div class="text-center py-5 text-muted">
+      <i class="bi bi-door-closed fs-1"></i>
+      <p class="mt-2">No rooms yet. <a href="/teacher/room/create/">Create your first room</a></p>
+    </div>
+  {% endif %}
+</div>
+{% endblock %}

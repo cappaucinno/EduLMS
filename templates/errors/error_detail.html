@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+{% block title %}Error #{{ error.pk }}{% endblock %}
+{% block page_title %}Error #{{ error.pk }} — {{ error.error_type }}{% endblock %}
+{% block content %}
+
+<div class="row g-4">
+  <!-- Main Info -->
+  <div class="col-lg-8">
+    <div class="card p-4 mb-3">
+      <div class="d-flex align-items-center gap-2 mb-3">
+        <span class="badge bg-danger fs-6">{{ error.error_type }}</span>
+        <span class="badge bg-{{ error.severity|yesno:'danger,warning,secondary,secondary' }}">{{ error.severity }}</span>
+        {% if error.resolved %}<span class="badge bg-success">Resolved</span>{% endif %}
+      </div>
+      <h6 class="fw-bold text-danger">Message</h6>
+      <div class="p-3 bg-light rounded mb-4 font-monospace small">{{ error.message }}</div>
+
+      <h6 class="fw-bold">Traceback</h6>
+      <pre class="p-3 rounded small text-white mb-0"
+           style="background:#1a1a2e;overflow-x:auto;max-height:400px;white-space:pre-wrap;">{{ error.traceback }}</pre>
+    </div>
+  </div>
+
+  <!-- Metadata -->
+  <div class="col-lg-4">
+    <div class="card p-4 mb-3">
+      <h6 class="fw-bold mb-3"><i class="bi bi-info-circle me-1"></i>Details</h6>
+      <table class="table table-sm table-borderless small mb-0">
+        <tr><th class="text-muted">Time</th><td>{{ error.created_at|date:"M d, Y H:i:s" }}</td></tr>
+        <tr><th class="text-muted">URL</th><td><code>{{ error.url }}</code></td></tr>
+        <tr><th class="text-muted">Method</th><td><span class="badge bg-primary">{{ error.method }}</span></td></tr>
+        <tr><th class="text-muted">User</th><td>{% if error.user %}<strong>{{ error.user.username }}</strong>{% else %}Anonymous{% endif %}</td></tr>
+        <tr><th class="text-muted">Role</th><td><span class="badge bg-secondary">{{ error.user_role }}</span></td></tr>
+      </table>
+    </div>
+
+    {% if error.post_data and error.post_data != '{}' %}
+    <div class="card p-4 mb-3">
+      <h6 class="fw-bold mb-2"><i class="bi bi-database me-1"></i>POST Data</h6>
+      <pre class="small bg-light p-2 rounded mb-0">{{ error.post_data }}</pre>
+    </div>
+    {% endif %}
+
+    <div class="d-flex flex-column gap-2">
+      {% if not error.resolved %}
+      <form method="post" action="/system/errors/{{ error.pk }}/resolve/">
+        {% csrf_token %}
+        <button type="submit" class="btn btn-success w-100">
+          <i class="bi bi-check-lg me-1"></i>Mark as Resolved
+        </button>
+      </form>
+      {% else %}
+        <div class="alert alert-success small mb-0">✅ This error has been resolved.</div>
+      {% endif %}
+      <a href="/system/errors/" class="btn btn-outline-secondary">
+        <i class="bi bi-arrow-left me-1"></i>Back to Dashboard
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

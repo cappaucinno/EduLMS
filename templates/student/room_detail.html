@@ -1,0 +1,133 @@
+{% extends 'base.html' %}
+{% block title %}{{ room.name }}{% endblock %}
+{% block page_title %}{{ room.name }}{% endblock %}
+{% block content %}
+
+<!-- Room Header -->
+<div class="card p-3 mb-4" style="border-left:5px solid #6c63ff;border-radius:14px;">
+  <div class="d-flex flex-wrap align-items-center gap-2">
+    <span class="grade-badge fs-6">Grade {{ room.grade_level }}</span>
+    <span class="subject-tag fs-6">{{ room.subject }}</span>
+    <span class="text-muted small ms-2">
+      <i class="bi bi-person-circle me-1"></i>
+      Teacher: <strong>{{ room.teacher.get_full_name|default:room.teacher.username }}</strong>
+    </span>
+  </div>
+  {% if room.description %}
+    <p class="mb-0 mt-2 text-muted small">{{ room.description }}</p>
+  {% endif %}
+</div>
+
+<div class="row g-4">
+
+  <!-- LESSONS -->
+  <div class="col-12 col-md-6">
+    <div class="card p-4 h-100">
+      <h6 class="fw-bold mb-3"><i class="bi bi-journals me-1 text-primary"></i>Lessons</h6>
+      {% if lessons %}
+        {% for lesson in lessons %}
+        <a href="/student/room/{{ room.pk }}/lesson/{{ lesson.pk }}/"
+           class="d-flex align-items-center text-decoration-none border rounded p-2 mb-2 text-dark hover-bg">
+          <span class="badge bg-primary me-2">{{ forloop.counter }}</span>
+          <div>
+            <div class="fw-bold small">{{ lesson.title }}</div>
+            <div class="text-muted" style="font-size:.75rem;">{{ lesson.content|truncatechars:50 }}</div>
+          </div>
+          <i class="bi bi-chevron-right ms-auto text-muted"></i>
+        </a>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 text-muted"><i class="bi bi-journals fs-2"></i><br>No lessons yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- MATERIALS -->
+  <div class="col-12 col-md-6">
+    <div class="card p-4 h-100">
+      <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-arrow-down me-1 text-success"></i>Learning Materials</h6>
+      {% if materials %}
+        {% for mat in materials %}
+        <div class="border rounded p-2 mb-2">
+          <div class="fw-bold small">{{ mat.title }}</div>
+          {% if mat.description %}<div class="text-muted" style="font-size:.75rem;">{{ mat.description }}</div>{% endif %}
+          <div class="mt-1 d-flex gap-2">
+            {% if mat.file %}
+              <a href="{{ mat.file.url }}" target="_blank" class="btn btn-sm btn-outline-success">
+                <i class="bi bi-download me-1"></i>Download
+              </a>
+            {% endif %}
+            {% if mat.link %}
+              <a href="{{ mat.link }}" target="_blank" class="btn btn-sm btn-outline-primary">
+                <i class="bi bi-link-45deg me-1"></i>Open Link
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 text-muted"><i class="bi bi-file-earmark fs-2"></i><br>No materials yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- ASSIGNMENTS -->
+  <div class="col-12 col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-file-earmark-check me-1 text-warning"></i>Assignments</h6>
+      {% if assignments %}
+        {% for a in assignments %}
+        <div class="border rounded p-3 mb-2">
+          <div class="d-flex justify-content-between align-items-start">
+            <div>
+              <div class="fw-bold small">{{ a.title }}</div>
+              <div class="text-muted" style="font-size:.75rem;">Due: {{ a.due_date|date:"M d, Y H:i" }} &bull; {{ a.max_score }} pts</div>
+            </div>
+            {% if a.pk in submitted_ids %}
+              <span class="badge bg-success">Submitted</span>
+            {% else %}
+              <a href="/student/assignment/{{ a.pk }}/submit/" class="btn btn-sm btn-warning text-dark fw-bold">
+                <i class="bi bi-upload me-1"></i>Submit
+              </a>
+            {% endif %}
+          </div>
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 text-muted"><i class="bi bi-file-earmark-check fs-2"></i><br>No assignments yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- QUIZZES -->
+  <div class="col-12 col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3"><i class="bi bi-question-circle me-1 text-info"></i>Quizzes</h6>
+      {% if quizzes %}
+        {% for quiz in quizzes %}
+        <div class="border rounded p-3 mb-2 d-flex justify-content-between align-items-center">
+          <div>
+            <div class="fw-bold small">{{ quiz.title }}</div>
+            <div class="text-muted" style="font-size:.75rem;">{{ quiz.questions.count }} questions</div>
+          </div>
+          {% if quiz.pk in attempted_quiz_ids %}
+            <span class="badge bg-secondary">Completed</span>
+          {% else %}
+            <a href="/student/quiz/{{ quiz.pk }}/take/" class="btn btn-sm btn-info text-white fw-bold">
+              <i class="bi bi-play-fill me-1"></i>Take Quiz
+            </a>
+          {% endif %}
+        </div>
+        {% endfor %}
+      {% else %}
+        <div class="text-center py-4 text-muted"><i class="bi bi-question-circle fs-2"></i><br>No quizzes yet.</div>
+      {% endif %}
+    </div>
+  </div>
+
+</div>
+
+<a href="/student/dashboard/" class="btn btn-outline-secondary mt-3">
+  <i class="bi bi-arrow-left me-1"></i>Back to My Rooms
+</a>
+{% endblock %}

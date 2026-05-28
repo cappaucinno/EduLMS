@@ -1,0 +1,12 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#128276; New {{ new_user.role|title }} Awaiting Approval</h2>
+<p>A new <strong>{{ new_user.role }}</strong> account has just been registered and requires your approval.</p>
+<div class="highlight">
+  <p>&#128100; {{ new_user.get_full_name|default:new_user.username }}<br>
+     &#64; {{ new_user.username }}<br>
+     &#9993; {{ new_user.email|default:"No email provided" }}</p>
+</div>
+<p>Please log in to the Admin Portal to approve or reject this account.</p>
+<a href="/admin/accounts/user/" class="btn">Go to Admin Portal</a>
+{% endblock %}

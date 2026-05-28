@@ -1,0 +1,35 @@
+{% extends 'base.html' %}
+{% block title %}Materials{% endblock %}
+{% block page_title %}Materials — {{ room.name }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-5">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Upload Material</h6>
+      <form method="post" enctype="multipart/form-data">{% csrf_token %}
+        {% for f in form %}<div class="mb-3"><label class="form-label fw-bold small">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+        <button type="submit" class="btn btn-accent w-100">Upload</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-7">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Materials ({{ room.materials.count }})</h6>
+      {% for m in room.materials.all %}
+      <div class="d-flex justify-content-between align-items-start border rounded p-3 mb-2">
+        <div>
+          <div class="fw-bold">{{ m.title }}</div>
+          <div class="text-muted small">{{ m.description|truncatechars:60 }}</div>
+          {% if m.file %}<a href="{{ m.file.url }}" target="_blank" class="small text-success me-2"><i class="bi bi-download me-1"></i>Download</a>{% endif %}
+          {% if m.link %}<a href="{{ m.link }}" target="_blank" class="small text-primary"><i class="bi bi-link me-1"></i>Open Link</a>{% endif %}
+        </div>
+        <form method="post" action="/teacher/material/{{ m.pk }}/delete/">{% csrf_token %}
+          <button class="btn btn-sm btn-outline-danger">Delete</button>
+        </form>
+      </div>
+      {% empty %}<div class="text-center py-3 text-muted">No materials uploaded yet.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+<a href="/teacher/room/{{ room.pk }}/" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+{% endblock %}

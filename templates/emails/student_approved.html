@@ -1,0 +1,15 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#127881; Your account has been approved!</h2>
+<p>Hi <strong>{{ user.get_full_name|default:user.username }}</strong>,</p>
+<p>Great news! A teacher has reviewed and approved your student account on {{ school_name }}.</p>
+<div class="highlight">
+  <p>You can now log in and access your assigned rooms.</p>
+</div>
+<p>Your details:</p>
+<p>&#8226; Username: <strong>{{ user.username }}</strong><br>
+   &#8226; Grade Level: <strong>Grade {{ user.grade_level }}</strong><br>
+   &#8226; Role: <span class="badge">Student</span></p>
+<a href="#" class="btn">Log In to EduLMS</a>
+<p style="font-size:13px;color:#888;">If you have any questions, please contact your teacher.</p>
+{% endblock %}

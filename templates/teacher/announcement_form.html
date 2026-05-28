@@ -1,0 +1,56 @@
+{% extends 'base.html' %}
+{% block title %}{{ action }} Announcement{% endblock %}
+{% block page_title %}{{ action }} Announcement{% endblock %}
+{% block content %}
+<div class="card p-4" style="max-width:720px">
+  <div class="alert alert-info small mb-3">
+    <i class="bi bi-envelope me-1"></i>
+    If "Send Email" is checked and the announcement is published now, emails will be sent immediately.
+    For scheduled announcements, emails are NOT auto-sent — resave after the scheduled time to send.
+  </div>
+  <form method="post" enctype="multipart/form-data">
+    {% csrf_token %}
+    <div class="row g-3">
+      <div class="col-12">
+        <label class="form-label fw-bold">Title</label>{{ form.title }}
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-bold">Type</label>{{ form.ann_type }}
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-bold">Send To (Audience)</label>{{ form.audience }}
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">Content</label>{{ form.content }}
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-bold">Attachment (PDF / Image)</label>{{ form.attachment }}
+      </div>
+      <div class="col-12 col-md-6">
+        <label class="form-label fw-bold">External Link</label>{{ form.link }}
+      </div>
+      <div class="col-12">
+        <label class="form-label fw-bold">Schedule Date (optional)</label>
+        {{ form.scheduled_at }}
+        <div class="form-text text-muted">Leave blank to publish immediately.</div>
+      </div>
+      <div class="col-12 d-flex gap-4">
+        <div class="form-check">
+          {{ form.send_email }}
+          <label class="form-check-label fw-bold"><i class="bi bi-envelope me-1"></i>Send Email</label>
+        </div>
+        <div class="form-check">
+          {{ form.pinned }}
+          <label class="form-check-label fw-bold"><i class="bi bi-pin me-1"></i>Pin Announcement</label>
+        </div>
+      </div>
+    </div>
+    <div class="d-flex gap-2 mt-4">
+      <button type="submit" class="btn btn-accent">
+        <i class="bi bi-send me-1"></i>{{ action }} Announcement
+      </button>
+      <a href="/teacher/announcements/" class="btn btn-outline-secondary">Cancel</a>
+    </div>
+  </form>
+</div>
+{% endblock %}

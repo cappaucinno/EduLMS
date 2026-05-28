@@ -1,0 +1,11 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#127942; Your assignment has been graded!</h2>
+<p>Hi <strong>{{ submission.student.get_full_name|default:submission.student.username }}</strong>,</p>
+<p>Your teacher has graded your submission for <strong>{{ submission.assignment.title }}</strong>.</p>
+<div class="highlight">
+  <p>&#127942; Score: <strong>{{ submission.grade.score }} / {{ submission.assignment.max_score }}</strong><br>
+     {% if submission.grade.feedback %}&#128172; Feedback: {{ submission.grade.feedback }}{% endif %}</p>
+</div>
+<a href="#" class="btn">View My Grades</a>
+{% endblock %}

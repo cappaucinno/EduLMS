@@ -1,0 +1,12 @@
+{{ school_name }} — You've been added to a room!
+
+Hi {{ user.get_full_name|default:user.username }},
+
+You have been assigned to:
+
+Room: {{ room.name }}
+Subject: {{ room.subject }}
+Grade Level: Grade {{ room.grade_level }}
+Teacher: {{ room.teacher.get_full_name|default:room.teacher.username }}
+
+Log in to access your room.

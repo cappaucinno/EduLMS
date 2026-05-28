@@ -1,0 +1,26 @@
+{% extends 'base.html' %}
+{% block title %}Grade Submission{% endblock %}
+{% block page_title %}Grade Submission{% endblock %}
+{% block content %}
+<div class="card p-4" style="max-width:600px">
+  <div class="mb-4">
+    <span class="grade-badge me-2">Grade {{ submission.assignment.room.grade_level }}</span>
+    <span class="subject-tag">{{ submission.assignment.room.subject }}</span>
+    <div class="fw-bold fs-5 mt-2">{{ submission.assignment.title }}</div>
+    <div class="text-muted">Student: <strong>{{ submission.student.get_full_name|default:submission.student.username }}</strong></div>
+    <div class="text-muted small">Submitted: {{ submission.submitted_at|date:"M d, Y H:i" }}</div>
+    {% if submission.file %}<a href="{{ submission.file.url }}" target="_blank" class="btn btn-sm btn-outline-secondary mt-2">View File</a>{% endif %}
+    {% if submission.notes %}<div class="mt-2 p-2 bg-light rounded small"><em>{{ submission.notes }}</em></div>{% endif %}
+  </div>
+  <form method="post">{% csrf_token %}
+    {% for f in form %}
+    <div class="mb-3">
+      <label class="form-label fw-bold">{{ f.label }} {% if f.name == 'score' %}(max {{ submission.assignment.max_score }}){% endif %}</label>
+      {{ f }}
+    </div>
+    {% endfor %}
+    <button type="submit" class="btn btn-accent">Save Grade</button>
+    <a href="/teacher/assignment/{{ submission.assignment.pk }}/submissions/" class="btn btn-outline-secondary ms-2">Cancel</a>
+  </form>
+</div>
+{% endblock %}

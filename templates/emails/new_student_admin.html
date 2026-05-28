@@ -1,0 +1,11 @@
+{% extends 'emails/base_email.html' %}
+{% block email_body %}
+<h2>&#127891; New Student Awaiting Approval</h2>
+<p>A new student has registered and is awaiting your approval.</p>
+<div class="highlight">
+  <p>&#128100; {{ student.get_full_name|default:student.username }}<br>
+     &#9679; Grade Level: <strong>Grade {{ student.grade_level|default:"Not set" }}</strong><br>
+     &#9993; {{ student.email|default:"No email provided" }}</p>
+</div>
+<a href="/teacher/students/pending/" class="btn">Review Pending Students</a>
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends 'base.html' %}
+{% block title %}Add Questions{% endblock %}
+{% block page_title %}Questions — {{ quiz.title }}{% endblock %}
+{% block content %}
+<div class="row g-4">
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Add MCQ Question</h6>
+      <form method="post">{% csrf_token %}
+        {% for f in form %}<div class="mb-3"><label class="form-label fw-bold small">{{ f.label }}</label>{{ f }}</div>{% endfor %}
+        <button type="submit" class="btn btn-accent w-100">Add Question</button>
+      </form>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <div class="card p-4">
+      <h6 class="fw-bold mb-3">Questions ({{ quiz.questions.count }})</h6>
+      {% for q in quiz.questions.all %}
+      <div class="border rounded p-3 mb-2">
+        <div class="fw-bold mb-1 small">{{ forloop.counter }}. {{ q.text }}</div>
+        <div style="font-size:.8rem;">
+          <span class="{% if q.correct_answer == 'A' %}text-success fw-bold{% endif %}">A. {{ q.option_a }}</span><br>
+          <span class="{% if q.correct_answer == 'B' %}text-success fw-bold{% endif %}">B. {{ q.option_b }}</span><br>
+          <span class="{% if q.correct_answer == 'C' %}text-success fw-bold{% endif %}">C. {{ q.option_c }}</span><br>
+          <span class="{% if q.correct_answer == 'D' %}text-success fw-bold{% endif %}">D. {{ q.option_d }}</span>
+        </div>
+        <div class="text-success small mt-1">✓ Answer: {{ q.correct_answer }}</div>
+      </div>
+      {% empty %}<div class="text-center text-muted py-3">No questions yet.</div>{% endfor %}
+    </div>
+  </div>
+</div>
+<a href="/teacher/room/{{ quiz.room.pk }}/quiz/" class="btn btn-outline-secondary mt-3"><i class="bi bi-arrow-left me-1"></i>Back</a>
+{% endblock %}

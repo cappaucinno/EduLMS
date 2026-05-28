@@ -1,0 +1,248 @@
+{% extends 'superadmin/base.html' %}
+{% block title %}API Documentation{% endblock %}
+{% block page_title %}REST API Documentation{% endblock %}
+{% block content %}
+<style>
+.api-card{border:none;border-radius:14px;box-shadow:0 1px 10px rgba(0,0,0,.07);margin-bottom:24px;}
+.endpoint{display:flex;align-items:center;gap:10px;padding:12px 16px;border-bottom:1px solid #f0f0f0;flex-wrap:wrap;}
+.endpoint:last-child{border-bottom:none;}
+.method{font-size:.7rem;font-weight:700;padding:3px 9px;border-radius:6px;min-width:56px;text-align:center;flex-shrink:0;}
+.get{background:#e1f5ee;color:#1a7a4a;}
+.post{background:#fff3cd;color:#856404;}
+.patch{background:#e8e6ff;color:#6c63ff;}
+.delete{background:#fee2e2;color:#991b1b;}
+.path{font-family:'Courier New',monospace;font-size:.82rem;color:#1a1a2e;flex:1;word-break:break-all;}
+.desc{font-size:.8rem;color:#666;flex-basis:100%;padding-left:66px;}
+.token-box{background:#1a1a2e;color:#6ee7b7;padding:16px;border-radius:10px;font-family:monospace;font-size:.82rem;white-space:pre-wrap;word-break:break-all;}
+.try-btn{font-size:.72rem;padding:3px 10px;border-radius:6px;}
+.section-head{font-size:.68rem;letter-spacing:2px;text-transform:uppercase;color:#999;padding:12px 16px 6px;font-weight:700;}
+</style>
+
+<div class="row g-4">
+
+  <!-- Left: Quick start -->
+  <div class="col-12 col-lg-5">
+
+    <div class="card api-card p-4">
+      <h5 class="fw-bold mb-1"><i class="bi bi-key me-2 text-warning"></i>Get Your Token</h5>
+      <p class="text-muted small mb-3">All API requests require a JWT Bearer token (except login and register).</p>
+
+      <label class="form-label fw-bold small">Username</label>
+      <input type="text" id="tryUser" class="form-control form-control-sm mb-2" placeholder="your username">
+      <label class="form-label fw-bold small">Password</label>
+      <input type="password" id="tryPw" class="form-control form-control-sm mb-3" placeholder="your password">
+      <button class="btn btn-warning btn-sm w-100 fw-bold" onclick="getToken()">
+        <i class="bi bi-lightning me-1"></i>Get Token
+      </button>
+
+      <div id="tokenResult" class="mt-3" style="display:none;">
+        <div class="d-flex justify-content-between align-items-center mb-1">
+          <div class="fw-bold small">Access Token (use in Authorization header)</div>
+          <button class="btn btn-outline-secondary try-btn" onclick="copyToken()"><i class="bi bi-clipboard me-1"></i>Copy</button>
+        </div>
+        <div class="token-box" id="tokenDisplay"></div>
+        <div class="text-muted small mt-2">
+          <i class="bi bi-info-circle me-1"></i>Expires in <strong>12 hours</strong>. Use refresh token to renew.
+        </div>
+      </div>
+    </div>
+
+    <div class="card api-card p-4">
+      <h5 class="fw-bold mb-3"><i class="bi bi-terminal me-2"></i>Quick Examples</h5>
+      <div class="mb-3">
+        <div class="fw-bold small mb-1">Login</div>
+        <div class="token-box" style="font-size:.75rem;">curl -X POST /api/auth/login/ \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"pass"}'</div>
+      </div>
+      <div class="mb-3">
+        <div class="fw-bold small mb-1">Get Rooms (with token)</div>
+        <div class="token-box" style="font-size:.75rem;">curl /api/rooms/ \
+  -H "Authorization: Bearer &lt;token&gt;"</div>
+      </div>
+      <div class="mb-3">
+        <div class="fw-bold small mb-1">JavaScript Fetch</div>
+        <div class="token-box" style="font-size:.73rem;">const res = await fetch('/api/rooms/', {
+  headers: {
+    'Authorization': 'Bearer ' + token,
+    'Content-Type': 'application/json'
+  }
+});
+const data = await res.json();</div>
+      </div>
+      <div>
+        <div class="fw-bold small mb-1">Register (no password needed)</div>
+        <div class="token-box" style="font-size:.75rem;">POST /api/auth/register/
+{
+  "username": "juan",
+  "first_name": "Juan",
+  "last_name": "Dela Cruz",
+  "email": "juan@school.ph",
+  "role": "student",
+  "grade_level": "10"
+}</div>
+      </div>
+    </div>
+
+    <div class="card api-card p-4">
+      <h5 class="fw-bold mb-2"><i class="bi bi-shield-check me-2 text-success"></i>Rate Limits</h5>
+      <table class="table table-sm mb-0">
+        <thead><tr><th>Type</th><th>Limit</th></tr></thead>
+        <tbody>
+          <tr><td>Anonymous (login, register)</td><td>30 / minute</td></tr>
+          <tr><td>Authenticated users</td><td>120 / minute</td></tr>
+          <tr><td>Token lifetime</td><td>12 hours (access)</td></tr>
+          <tr><td>Refresh token</td><td>30 days</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+  </div>
+
+  <!-- Right: Endpoint list -->
+  <div class="col-12 col-lg-7">
+
+    <div class="card api-card">
+      <div class="section-head">AUTH</div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/auth/login/</span><span class="desc">Get JWT tokens — body: {username, password}</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/auth/register/</span><span class="desc">Register new account — body: {username, first_name, last_name, email, role, grade_level}</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/auth/token/refresh/</span><span class="desc">Refresh access token — body: {refresh}</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/auth/me/</span><span class="desc">Get current user info</span></div>
+      <div class="endpoint"><span class="method patch">PATCH</span><span class="path">/api/auth/me/</span><span class="desc">Update profile — body: {first_name, last_name, email}</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/auth/change-password/</span><span class="desc">Change password — body: {old_password, new_password}</span></div>
+    </div>
+
+    <div class="card api-card">
+      <div class="section-head">ROOMS</div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/</span><span class="desc">List rooms for the authenticated user</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/</span><span class="desc">Room detail with teacher info and student count</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/lessons/</span><span class="desc">All lessons in a room</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/materials/</span><span class="desc">All materials (files and links) in a room</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/assignments/</span><span class="desc">Assignments with student submission status if applicable</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/quizzes/</span><span class="desc">Quizzes with attempt status</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/rooms/&lt;id&gt;/live/</span><span class="desc">Live class sessions (Jitsi Meet)</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/rooms/&lt;id&gt;/live/</span><span class="desc">Create live session (teacher only) — body: {title, scheduled_at, description}</span></div>
+    </div>
+
+    <div class="card api-card">
+      <div class="section-head">ASSIGNMENTS & QUIZZES</div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/assignments/&lt;id&gt;/</span><span class="desc">Assignment detail</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/assignments/&lt;id&gt;/submit/</span><span class="desc">Submit assignment (student) — multipart/form-data: {file, notes}</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/quizzes/&lt;id&gt;/</span><span class="desc">Quiz with questions (correct_answer hidden from students)</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/quizzes/&lt;id&gt;/submit/</span><span class="desc">Submit quiz answers — body: {"answers": {"&lt;question_id&gt;": "a"|"b"|"c"|"d"}}</span></div>
+    </div>
+
+    <div class="card api-card">
+      <div class="section-head">GRADES & ANNOUNCEMENTS</div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/grades/</span><span class="desc">Student's assignment grades and quiz attempts with summary stats</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/announcements/</span><span class="desc">Announcements for the user — ?type=urgent&amp;unread=1&amp;page=1</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/announcements/&lt;id&gt;/read/</span><span class="desc">Mark announcement as read</span></div>
+    </div>
+
+    <div class="card api-card">
+      <div class="section-head">DASHBOARD & NOTIFICATIONS</div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/dashboard/</span><span class="desc">Full dashboard summary (role-aware stats and recent rooms)</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/notifications/</span><span class="desc">Unread counts: announcements, pending assignments, live sessions</span></div>
+    </div>
+
+    <div class="card api-card">
+      <div class="section-head">ADMIN ONLY</div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/admin/users/</span><span class="desc">All users — ?role=student&amp;status=pending&amp;q=search</span></div>
+      <div class="endpoint"><span class="method post">POST</span><span class="path">/api/admin/users/&lt;id&gt;/approve/</span><span class="desc">Approve user and send password setup link email</span></div>
+      <div class="endpoint"><span class="method get">GET</span><span class="path">/api/admin/stats/</span><span class="desc">System-wide statistics (users, rooms, errors)</span></div>
+    </div>
+
+  </div>
+</div>
+
+<!-- Live API Tester -->
+<div class="card api-card p-4 mt-2">
+  <h5 class="fw-bold mb-3"><i class="bi bi-play-circle me-2 text-primary"></i>Live API Tester</h5>
+  <div class="row g-3">
+    <div class="col-12 col-md-2">
+      <select class="form-select form-select-sm" id="tryMethod">
+        <option>GET</option><option>POST</option><option>PATCH</option>
+      </select>
+    </div>
+    <div class="col-12 col-md-6">
+      <input type="text" id="tryUrl" class="form-control form-control-sm" placeholder="/api/rooms/" value="/api/rooms/">
+    </div>
+    <div class="col-12 col-md-4 d-flex gap-2">
+      <button class="btn btn-primary btn-sm flex-grow-1" onclick="runRequest()">
+        <i class="bi bi-send me-1"></i>Run
+      </button>
+      <button class="btn btn-outline-secondary btn-sm" onclick="document.getElementById('tryBody').value=''">Clear</button>
+    </div>
+    <div class="col-12">
+      <label class="form-label small fw-bold">Request Body (JSON — for POST/PATCH)</label>
+      <textarea id="tryBody" class="form-control form-control-sm" rows="3" style="font-family:monospace;font-size:.8rem;" placeholder='{"key":"value"}'></textarea>
+    </div>
+    <div class="col-12" id="responseBox" style="display:none;">
+      <div class="d-flex justify-content-between mb-1">
+        <label class="form-label small fw-bold mb-0">Response</label>
+        <span id="responseStatus" class="badge"></span>
+      </div>
+      <pre id="responseBody" style="background:#1a1a2e;color:#6ee7b7;padding:14px;border-radius:10px;font-size:.77rem;overflow-x:auto;max-height:320px;white-space:pre-wrap;word-break:break-all;"></pre>
+    </div>
+  </div>
+</div>
+
+<script>
+var savedToken = '';
+
+function getToken(){
+  var u=document.getElementById('tryUser').value;
+  var p=document.getElementById('tryPw').value;
+  if(!u||!p){alert('Enter username and password.');return;}
+  fetch('/api/auth/login/',{
+    method:'POST',
+    headers:{'Content-Type':'application/json'},
+    body:JSON.stringify({username:u,password:p})
+  }).then(r=>r.json()).then(d=>{
+    if(d.access){
+      savedToken=d.access;
+      document.getElementById('tokenDisplay').textContent=d.access;
+      document.getElementById('tokenResult').style.display='block';
+    } else {
+      alert('Login failed: '+(d.error||JSON.stringify(d)));
+    }
+  }).catch(e=>alert('Error: '+e));
+}
+
+function copyToken(){
+  navigator.clipboard.writeText(savedToken).then(()=>{
+    alert('Token copied!');
+  }).catch(()=>{
+    const ta=document.createElement('textarea');
+    ta.value=savedToken;
+    document.body.appendChild(ta);
+    ta.select();document.execCommand('copy');
+    document.body.removeChild(ta);
+  });
+}
+
+function runRequest(){
+  var method=document.getElementById('tryMethod').value;
+  var url=document.getElementById('tryUrl').value.trim();
+  var body=document.getElementById('tryBody').value.trim();
+  var headers={'Content-Type':'application/json'};
+  if(savedToken) headers['Authorization']='Bearer '+savedToken;
+  var opts={method,headers};
+  if(body&&method!=='GET'){
+    try{opts.body=body;}catch(e){alert('Invalid JSON body');return;}
+  }
+  fetch(url,opts).then(r=>{
+    var s=r.status;
+    document.getElementById('responseStatus').textContent=s;
+    document.getElementById('responseStatus').className='badge '+(s<300?'bg-success':s<400?'bg-warning text-dark':'bg-danger');
+    return r.json();
+  }).then(d=>{
+    document.getElementById('responseBody').textContent=JSON.stringify(d,null,2);
+    document.getElementById('responseBox').style.display='block';
+  }).catch(e=>{
+    document.getElementById('responseBody').textContent='Error: '+e;
+    document.getElementById('responseBox').style.display='block';
+  });
+}
+</script>
+{% endblock %}

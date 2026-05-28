@@ -1,0 +1,7 @@
+{{ school_name }} — Room Removal Notice
+
+Hi {{ user.get_full_name|default:user.username }},
+
+You have been removed from: {{ room.name }} ({{ room.subject }}, Grade {{ room.grade_level }})
+
+Contact your teacher if you think this is a mistake.

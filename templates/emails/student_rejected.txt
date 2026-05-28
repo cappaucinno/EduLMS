@@ -1,0 +1,9 @@
+{{ school_name }} — Account Registration Update
+
+Hi {{ user.get_full_name|default:user.username }},
+
+Your student account registration on {{ school_name }} could not be approved.
+
+Please contact your teacher or school administrator for assistance.
+
+This is an automated message from {{ school_name }}.
